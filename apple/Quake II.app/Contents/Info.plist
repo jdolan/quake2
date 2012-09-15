@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>CFBundleDevelopmentRegion</key>
+        <string>English</string>
+        <key>CFBundleDisplayName</key>
+        <string>Quake II (Quake2World.net)</string>
+        <key>CFBundleExecutable</key>
+        <string>quake2</string>
+        <key>CFBundleIconFile</key>
+        <string>quake2.icns</string>
+        <key>CFBundleIdentifier</key>
+        <string>net.quake2world.quake2.launcher</string>
+        <key>CFBundleName</key>
+        <string>Quake II (Quake2World.net)</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleShortVersionString</key>
+        <string>1.212</string>
+        <key>CFBundleSignature</key>
+        <string>????</string>
+        <key>CFBundleVersion</key>
+        <string>1.212</string>
+        <key>LSMinimumSystemVersion</key>
+        <string>10.6</string>
+</dict>
+</plist>

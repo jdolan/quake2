@@ -1,0 +1,31 @@
+Changes from AprQ2 v1.211
+
+- Nearly all dynamic light colors and sizes have been adjusted.
+- Added dynamic light at rail trail end position.
+- Added dynamic light at bullet mark position.
+- Changed rocket trail color.
+- Force all explosions to use alpha blending.
+- Force 24 bit color for SDL refresh.
+- Request stencil buffer for SDL refresh (fixes gl_shadows 2).
+- Enable key repeat for SDL refresh.
+- Clamp GL_LightPoint values, enforcing minimum brightness for ents.**
+- Change quite a few cvar value defaults.
+- Fixed gl_scale glitch when starting up the refresh.
+- Decrease cl_blend intensity.
+- Use sane build targets on GNU/Linux.
+- Fixed game.so build on GNU/Linux.
+- Default gl_texturemode to GL_LINEAR_MIPMAP_LINEAR (bilinear filtering).
+- Fixed Anisotropic filtering (use glTexParameterf instead of glTexParameterv).
+- Added multisample (FSAA) support for SDL refresh, use gl_multisample 1/2/4.
+- Fixed gl_swapinterval (v-sync) for SDL refresh.
+- Use high-resolution console characters when gl_scale > 1.0.
+- Update to R1Q2 protocol version 1905.
+
+- Fix Apple OS X build.
+
+** While some might hastily call this a "cheat", I say it allows players to
+use decent looking gl_modulate and intensity values while still seeing items
+and other players.  People could just as easily set gl_modulate 10, but then
+the whole game looks like ass.  For mods where having entities hiding in the
+dark is critical, server admins can override the 'gl_minlight_entities' cvar.
+

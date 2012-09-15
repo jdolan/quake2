@@ -1,0 +1,118 @@
+Quake II License Explanation
+
+Here is a brief explanation of everything contained in the various license
+agreements that may or may not be part of this package.  This is not a con-
+tract and is not intended to replace, modify, alter or amend either the
+Limited Use Software License for Quake II or the Commercial Exploitation
+License for Quake II.  This document was designed only to be a quick over-
+view of our license terms.  You must refer to the full text of each license
+for a complete listing of the terms and conditions.
+
+CONTENTS:
+
+1. LIMITED USE SOFTWARE LICENSE AGREEMENT FOR QUAKE II or What You Can and
+Cannot Do With the Full Version of Quake II;
+ 
+2. THE SIMPLE RULES REGARDING THE SALE OF USER DEVELOPED QUAKE II LEVELS
+AND/OR UTILITIES;
+ 
+3. COMMERCIAL EXPLOITATION LICENSE FOR QUAKE II
+
+
+1. LIMITED USE SOFTWARE LICENSE AGREEMENT or What You Can and Cannot Do With
+the Full Version of Quake II.
+
+
+CAN DO:
+-- Play & enjoy the single player game;
+-- Setup a full version based server on a not-for-profit basis;
+-- Develop new levels and/or level creation utilities; and
+-- Play the game and/or setup a full version based server using
+   a user-developed level.
+
+CANNOT DO:
+-- Commercially exploit the full version of Quake II in any way;
+   see Commercial Exploitation License info below;
+-- Commercially exploit any id copyrighted, trademarked or other property
+   Example: Game names, logos, game graphics, etc.; or
+-- Sell user-developed levels and/or tools.
+
+
+2. THE SIMPLE RULES REGARDING THE SALE OF USER DEVELOPED QUAKE II LEVELS
+AND/OR UTILITIES:
+
+-- User-developed/user-modified maps & utilities can only work with the full
+   version of Quake II.  (Just to be crystal clear on this point: user-
+   developed/user-modified maps & utilities cannot work with the demo or any
+   version of Quake II other than the full version.) 
+
+-- Maps/utilities that are made for Quake II cannot be rented, sold or
+   commercially exploited by any other means.  The full version Limited Use
+   Software License Agreement will give you the limited right to develop
+   maps/utilities that use id data.  This limited right does not include the
+   right for anyone to sell anything that includes id data or any other id
+   property.
+
+3. COMMERCIAL EXPLOITATION LICENSE FOR QUAKE II
+
+If you are interested in trying to make money using the full version of Quake
+II (not allowed using the demo) you must sign our easy-to-digest Commercial
+Exploitation License.  This license is to be used by folks desiring to use
+the full version of Quake II to set up pay-per-play (location based orarcade
+centers) stations, for profit online servers, or other applications where
+the actual code or graphics from the full version of Quake II is used for
+profit.  Of course, id does not give any warranty or representations as to
+whether you will make any profit.  You assume 100% of the risk.  
+
+This is a license that allows you to run Quake II for a profit through a cer-
+tain monthly gross profit range without payment to id Software other that
+the initial $500 processing fee.  If your Quake II-related business becomes
+successful the agreement brings id into the revenue stream.
+
+Basic terms of the commercial exploitation license:
+
+-- License grants a commercial exploitation right for the full version of
+   Quake II as a whole without payment to id Software (except for the $500
+   processing fee) so long as the monthly gross revenue from Quake II 
+   $5,000.00 or below.  You must make a nonrefundable and nonrecoupable pay-
+   ment of $500 for the costs of processing the license.
+
+-- License provides for a 12.5% royalty to be paid to id software in months
+   where the licensee's Quake II related monthly gross revenue is above
+   $5,000.00.  For those months, you will be obligated to pay on 100% of your
+   monthly gross revenue.
+
+-- Royalty is based off net income.  The term "Net Income" shall mean all
+   revenue received by you as Licensee from the commercial use of Quake II, 
+   less only actual, reasonable and necessary documented costs relating
+   directly to such use.
+
+-- License expressly prohibits commercial exploitation via the sale (retail
+   or otherwise) of any versions of Quake II.
+
+-- License expressly prohibits advertising/marketing use of our copyrighted,
+   trademarked, or other properties.
+
+-- This license is not intended for use by folks developing Quake II maps
+   and/or utilities.   Please reference the section titled "The simple rules
+   for Quake II map/utility distribution:" for info on this subject.
+
+If you would like enter into the agreement, please type a written explana-
+tion of how you intend to commercially exploit Quake II and send your check
+or money order (please do not send cash) to:
+
+                id Software
+                18601 LBJ #666
+                Mesquite, TX  75150
+                Attn: Quake II ComExp License
+
+We will then review your request and, if acceptable, will mail you two
+originals of the agreement for execution and return.  You have no rights
+until such time as id executes and delivers to you an original of the
+Commercial Exploitation License.  If we choose not to accept your request,
+we will refund your $500 processing fee.
+
+The terms of the license are not subject to negotiation. If you cannot
+live with the terms spelled out in the license do not engage in any com-
+mercial exploitation or other use of Quake II and do not send us the money
+or requests for an agreement.

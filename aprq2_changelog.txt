@@ -1,0 +1,344 @@
+:: AprQ2 changelog  ::
+1.211
+-Fixed models with 0 skins would crash the game.
+-Fixed gl_decals would cause a crash.
+-Fixed beam bug.
+-Fixed rotating sky with axis.
+
+1.21
+-Cl_async to toggle between asyncronous and syncronous renderer. When enable, use r_maxfps to change the renderer max fps.
+-New r1q2 protocol support.
+-Fixed protocol fallback on mismatch minor versions.
+-cvar net_maxmessagelen cvar to set maximum message size on R1Q2 servers. Default 1390 matches Q2 3.20 default. Set to 0 to use maximum available size.
+-cvars scr_drawlagometer_x and scr_drawlagometer_y to set the cordinations of lagometer.
+-cvar gl_decals_max to set maximum decals, this can use alot memory, so its limited between 256 - 4096.
+-cvar gl_stainmaps needs vid_restart, it uses alot memory, so dont need to allocate it when not used.
+-Doesnt load caustic, shell effect or decal images if those arent in use.
+-Alot stuff from q2pro.
+-*.pkz support.
+-Should use alot less memory.
+-Alot misc optimizations.
+-Error dumping from q2pro
+-New macro 'cl_ups' to show current velocity in units per second.
+-Removed char limits per line on centerprint.
+-Centerprint fading.
+-Updated libpng library to v1.2.20 on windows builds.
+-Command draw <name> <x> <y> [color [time]] to add drawing cvar/macro string to screen.
+-Command undraw <name> to remove the drawing cvar/macro.
+-Ignore wrong client_connect requests.
+-Cvar cl_chat_notify to disable notify on chat text.
+-Doesnt add aviexport info to notify.
+-Serverrequest list to only print stuff from servers where requested.
+-Check maps for bad lump offsets.
+-cvars cl_gun_x, cl_gun_y and cl_gun_z to adjust the gun place.
+-Lowers the gun depending how much fov is when drawing gun on fov over 90 (cl_gun 2).
+-Automaticly set correct fov for all widesreen modes, you can disable this with cl_wsfov 0.
+-New sound resample code from qfusion with stereo support. To use the original if sounds weird, set s_oldresample 1.
+-Check for malformed wav files.
+
+
+1.20
+-Checks for bad vid_displayfrequency/gl_bitdepth on mode change fail.
+-Checks that we actually got all addresses for used gl pointers from gl lib.
+-Old protocol < 34 demos works again.
+-Fixed laser beams not shown on localhost.
+-autoexec.cfg is loaded before subsystems intialize. Allow loading setting for cvar's which would otherwise
+ need subsystem restart to take effect (vid_restart/snd_restart). Command which isnt added yet, willbe run where autoexec.cfg
+ was loaded before.
+-Try to exec postinit.cfg at same place where old autoexec was loaded.
+-Q3 dedicated console for windows.
+-cvar win_consolelogging to enable logging all console msg's to dedicated console, this allow user to see last lines
+ when Q2 own error occurs.
+-MD3 model support from QFusion, set gl_replacemd2 to 1 so it try to load .md3 instead of md2.
+-MD2 is loaded as triangles and drawed whole model at once using DrawElements, so it might give some fps, even more if youre using shadows and/or celshading.
+-Uses the new protocol if server send it in challenge msg, otherwise it assumes its old one so no more reconnect "server is using 3.12". You can also force to use old with cl_protocol 34.
+-Cmd 'dec <cvar> [value]' to decrease cvar value.
+-Cmd 'random <cvar> <from> <to>' to set cvar a random value between from and to.
+-cmd 'centerprint <text>' to print text to screen center.
+-Removed gl_ext_palettedtexture and hacky gl_monolightmap.
+-Support for loading R1CH's anticheat module.
+-cvar con_mwheel to disable mouse wheel console scrolling.
+-Added Q3 style AVI demo frame dumping (cl_avidemo cvar). cvar value is the fps to dump. Also 'cl_forceavidemo' to dump
+ even if not in level.
+-'cl_avidemoformat' to choose between tga/jpg screenshots, default 0 as tga.
+-Fixed blackbars on some gl_scale value.
+-gl_coloredlightmaps also effects models.
+-Skipping context release on openal when using linux J. Valenzuela v0.0.8 library. It seems to hang up.
+-Changed png loading, it should be faster.
+-Added option to makefile to use SDL for mouse/keyboard/window handling for both software and gl.
+-GL version should compile on MacOSX, thanks to hifi.
+-Swiching back to fullscreen from window mode in linux screwed mouse.
+-removed gl_texturealphamode & gl_texturesolidmode, use gl_texturebits instead.
+-Added client side demoplayback, use demo cmd instead of demomap. With this you can use cl_demotimescale.
+-Demoplay and demos menu use the 'demo' cmd instead of demomap.
+-Added cvar mpd_pass to define password for mpd.
+-In linux in_dgamouse 2 uses different method for movement.
+-Added game source files back and compile option to makefile.
+-Makefile make only realease build by default, if you want debug version, use 'make debug'.
+-Added cmd 'vid_minimize' to minimize in both, windows and linux.
+
+1.19
+-toggle command multi parameters now actually works
+-fixed little sound change
+-cvar loc_dir to change the loc dir, default is 'locs'
+-locs is now loaded from mod dir so its possible to load locs from pak. If you want to load from <gamedir>/locs like before, just set loc_dir "../locs"
+-loc_save takes additional parameter for loc filename.
+-triggers works with centerprint msg's also
+-Aviexport librarys gets only loaded at first time using export/record.
+-Cant start recording when recording already.
+-Command inc doesnt include ending 0's.
+-Map is also listed next to hostname on server list
+-Changed some autorecord stuff. Removed all stupid cl_custom* cvars, you can set those all using triggers.
+ Autorecord doesnt start recording again when stopped. Its start again on mapchange or typing record.
+ Removed stopautorecord command because of that.
+-Linux: makefile have now option for using sdl for sounds
+-Linux: MPD remote controls (Thanks to hifi). Enable from makefile.
+-You can set alias to take parameters using $1 - $9 in alias which is parameters number.
+ You can also use $<nro>- to get all parameters after that number.
+-Command whereis to check where file is loaded from, ec. 'whereis pics/ch1.pcx' would print where the q2 have loaded it.
+-Couble client side triggers: "#cl_enterlevel" and "#cl_changelevel"
+-Command ignoretext to ignore wildcard match chat text.
+-Command unignoretext to unignore. Parameter 'all' removes all.
+-cl_ignoremode for text ignores, 0 to disable, 1 enabled (default), 2 inverted mode so all text which dont match any from the list will be ignored,
+  so it would ignore all if list is empty.
+-if command to compare two value/string. Type 'if' to get all operator which can be used.
+-r1q2 text${var}text scripting support.
+-untrigger now untriggers the given trigger match and text so you can bind them, no more untrigger by num. Also parameter "all" remove all.
+-ALT+ENTER change mode between fullscreen and windowed in linux also
+-Should compile with AMD64
+-Client side support for R1Q2 HTTP download protocol. In linux you need libcurl to work, win32 binary comes with static libcurl.
+ Cvars: cl_http_downloads 0/1 controls the whole HTTP subsystem, cl_http_filelists 0/1 controls the use of filelists
+ and cl_http_proxy can be set to use a proxy server (host:port) if needed.
+-New cmd highlight to add multiple highlight texts, also takes optional parameter for color, else uses the cl_highlightcolor value like before.
+-Removed the cl_highlightmsg cvar because of the new cmd.
+-cmd unhighlight to remove highlights. Parameter 'all' removes all.
+-'cl_highlightmode' allow highlight to check the whole chat msg with nick, not only the msg.
+-cvar 'gl_ext_texture_filter_anisotropic' allow user to set anisotropic, use gl_ext_max_anisotropy to specify samples.
+-Couble new macros: $cl_health, $cl_ammo, $serverip.
+-'ch_health' to enable crosshair health which means, crosshair color is changing when your health change. This ignores ch_<color>'s.
+-'ch_x' and 'ch_y' cvars to change crosshair position.
+-Highligted chat msg colors effects chathud also.
+-Nick completion, use ctrl+tab in console.
+-Possible to complete cvar after "set " and alias after "alias " or "unalias ".
+-cmd 'reset' to reset a cvar to its default value.
+-quake2://address link support
+-Its possible to find text from console buffer, type the text to console and press up/down while ctrl is down.
+-Windows binary allways uses the directory where the .exe is as working directory.
+-openAL support, type s_initsound 2 to enable. You can change driver/device and some settings using s_openal_* cvar's.
+-m_accel cvar to specify mouse acceleration <0-1> (default 0 - disabled).
+-ALSA doesnt use mmap anymore.
+-fs_usehomedir cvar to disable using homedir/.quake/ for writing in linux. Default enabled.
+-Macro $cl_weaponmodel to return current weapon model.
+-cl_gun 2 allows to draw gun on fov over 90
+
+1.18
+-direct input support for mouse. Use m_directinput to enable.
+-removed items limit from demos and winamp menulist
+-start local server menu have map list
+-joinserver menu changes, now it list players and server settings too
+-joinserver menu trying also load server ip's from mod\addresses.txt
+-trigger command added
+-macros added: $date, $time, $mapname, $loc_here, $loc_there, $cursong
+-macrolist command to list all macros and theyr current value
+-s_swapstereo cvar to swap stereo channels.
+_loc's using now linked list, no more max locations limit.
+-loc_del now removes the nearest loc
+-removed say_locteam command, use new macros to use locations. Loc macros return %L and %S when no locations for map.
+-XMMS control support for linux users from fuhquake. All commands start with 'xmms_'.
+-vid_flip_on_switch, if enabled q2 loads your windows resolution on alt+tab and restores q2 resolution on restore.
+-fixed cellshading on hand 1 and when zooming at long distance
+-added cl_chathudtime cvar to control how long chathud msg's stays in screen
+-custom resolutions: use r_customheight and r_customwidht to set width/height with gl_mode -1 (works gl/sw in linux and win)
+-new command modelist to list all gl_mode/sw_mode resolutions
+-fixed stupid bug in aviexport
+-aviexport have now sound support, use avi_sound cvar. default enabled and if it set to 2, it try to use mp3 decoder.
+-aviexport video is uncompressed by default, if you want to use codec use avi_codec cvar. Use fourCC to specify the codec (ec 'xvid')
+   or if you want to enable the window codec menu like in earlier versions, set avi_codecmenu to 1.
+-new command avirecord, now you dont have to export whole demo, you can start exportin at any time in demo playback.
+   It names the avi's to demoxx.avi.
+-new command avistop to stop avi exporting.
+-uptaded windows binarys zlib to v1.2.3 and libpng to v1.2.8.
+-wait command takes additional parameter how many frames to wait
+-cvar con_cmdcomplete to set how commancompletion works:
+  0 = like in original q2
+  1 = like 0 + list of matching commands
+  2 = like 1 + doesnt complete command if theres more matches
+  3 = like 2 + list also show cvar's current values
+-some effects for making movies, cvars start with gl_eff_
+-new shell effect in gl mode, type gl_shelleffect 1 to enable
+-shell effect also aply to guns
+-ALSA sound support for linux users. ALSA is default enabled, type sndalsa 0 to use old OSS sound. This is taken from EZQuake.
+-Client s_ambient cvar to control whether to play world sounds
+-toggle command takes more value parameters
+-R1Q2 Protocol support for b5510 & b5920 versions with demo translating from r1q2 (where else?).
+  Tough no support yet for sv_advanced_deltas.
+-cl_protocol cvar allow force to use orginal 34 protocol.
+-Windows direct sound try to use hardware mixing if available. If you have some problems with this, you can force old soft mixing using s_forcesoft cvar.
+
+1.17
+-console buffer size doubled
+-record command bug fix (something what i screwed last version)
+-only mm2 messages to chathud if cl_chathud value is 3 or 4
+-gl cvar latching
+-notifyline msg's (kill/chat etc) is now recorded to .avi
+-gl_coloredlightmaps cvar
+-gl_gammapics cvar to allow disable vid_gamma added to hud images
+-autorecord doesnt start new demo on vid_restart
+-now you can paste multi lines from clipboard to console/chat
+-go to console at start up
+-net_serverport to define serverport
+-command "alias <alias>" print what defined alias do if it exists
+-added command aliaslist to print all aliases with wildcard support
+-added command "unalias" to remove aliases
+-mouse support in menu
+-demos and winamp menus unders options. Also commands to them 'menu_demos' & 'menu_winamp' (winamp menu only for windows)
+-removed cl_enablelocs, locs is enabled automaticly if found .loc for current map under locs\ directory
+-removed old ipx protocol
+-using hash tables in cvar/cmd/alias/file/image searching.
+-screenshot naming in software changed like it is gl (year-month-day_hour-min_map)
+-screenshot & screenshotjpg takes second parameter which will be the screenshotfile name (both in soft & gl)
+-some little changes there and there + some bufferoverfload checks
+-added vid_displayfrequency cvar so its possible to set frequence what game uses. (warning, use only values what your monitor support)
+-merged renderer and client so theres two executables, one for gl and one for software
+-linux support and linux stuff from icculus linux q2 project
+-and some little changes what i allready forgot
+
+1.61
+- Changed frame timing back like it was before 1.6.
+- Changed sound code back like it was before 1.6.
+
+1.6
+- Added cvar 'cl_highlightnames', when enabled player names in server messages shown in different color.
+- Changed cl_highlight code so it doesnt effect to your own messages.
+- Added cmd 'ignorenick' to allow you to ignore annoying players. 'ignorenick' without parameters gives you list of current players in server with id. You ignore player using player id ex 'ignorenick 1'.
+- Added cmd 'unignorenick', this removes nicks from ignorelist. 'unignorenick' without parameter gives you list of all ignored nicks with theyr id. NOTICE: ignorenick and unignorenick players id's are different.
+- Readded gl_ext_palettedtexture.
+- Fixed bug in image uploading which caused crash on loading some highresolution pics.
+- Added cvar cl_textcolors. This enable different colors on some messages. You can't change these colors.
+- Added cl_highlightcolor (default 1) to change color (1-8) of highlight messages, this need cl_highlight to be 2 or 3 and cl_textcolors to be enabled.
+- Added cl_mychatcolor, with this you can change the color (1-8) of your own chat messages. This need cl_textcolors to be enabled.
+- Added color values 1-9 to cl_fps, cl_clock and cl_maptime.
+  Colors values: 0 = black, 1 = red, 2 = green, 3 = yellow, 4 = blue, 5 = cyan, 6 = mageta, 7 = white, (8 = upper byte color(only in cl_clock etc)). Only values 1-2 works in software mode.
+  NOTICE: Colors work best if your conchars.pcx lower byte characters are white like in orginal q2 conchar.pcx.
+- cl_clan is added to autorecord demonames.
+- Added cvar 'cl_timestampsformat' to allow you change the timestamps time format. More info setting time format in readme.
+- Added cvar 'cl_clockformat' to allow you change the cl_clock time format (you can change the time to 12hour style etc.). More info about setting time format in readme.
+- Added cvar 'gl_sgis_mipmap' which enables hardware mipmap generation if hardware supports it.
+- Added cvar 'gl_ext_texture_compression' to enable texture compression if hardware supports it.
+- Added *.pak loading, use cvar 'fs_allpakloading' to enable it.
+- Added 'gl_celshading' cvar. This supposedly simulates cartoon drawing and shading.
+- Added 'gl_celshading_width' (default 5) to set size of lines for celshading outlines
+- Added 'gl_scale' (default 1). This allow you to scale font text and hud pictures size.
+- Removed 'cl_chathudtextsize', use gl_scale instead.
+- Added command 'winampsonginfo', wich show: name, length, elapsed, remaining, bitrate and samplerate info about current song.
+- Added command 'winampsearch'. Use this to search a song from your current playlist. "winampsearch <txt>" would print all songs which got given txt in it. Then just play them with "play <track number>".
+- Added cvar 'cl_winamp_dir'. Set this to point your winamp dir (default: c:/program files/winamp). This is needed to use 'winampsearch' cmd. 
+- Color tag support in echo messages. Just write '^' and color number to change text color.
+- Added water caustics. Type gl_watercaustics 1 to enable.
+- Bad TGA files are now handled correctly in both gl and software mode.
+- Palettedtexture is added to sky again like it was in original q2.
+- Fixed bug when alpha not added to 32bit pics with alphachannel.
+- Removed number of files limit in a pak file.
+- Added cvar 'gl_fog' to add fog effect and 'gl_fog_density' to controll fog density.
+- Added cvar 'gl_decals' to enable bullet hole decals.
+- Added cvar 'gl_decals_time' to control how long decals stays.
+- Added cl_maxpackets from q2pro to control how many packets client send max at per frame to the servers. This is usefull for users with low connection and want to use high cl_maxfps value (more info in readme).
+- Added command 'serverstatus <server address>' to get info about server, what map its running, player and theyr ping & score.
+- Removed gun developer tools commands 'gun_next', 'gun_prev' and 'gun_model'.
+- Removed 'cl_netgraphmode'. Netgraph is now allways draw behind the hud without the backround.
+- Added 'scr_drawlagometer' wich draw little netgraph. 1 draw only graph. 2 draw also ping. 3 draw also upload- & download rate.
+- Added 'scr_draw2d' (default 0), so you can disable hud.
+- Fixed some bugs in console/chat text input code.
+- Removed cl_locpath, locs are loaded from "loc/" folder.
+- Timescale is now usable during demoplay so you can control playback speed.
+- Fix dynamic lights on rotating bmodels (both software and gl mode).
+- Some changes in software code.
+
+1.5
+- Added cl_chathudlines (default 4) to control how many lines to draw to chathud.
+- Removed cl_chathudgreen. From this on use cl_chathud 2 to change chathud color.
+- Changed cl_chathudtextxsize and cl_chathudtextysize to cl_chathudtextsize.
+- Added con_notifylines (default 4) to control how many lines can be same time at the top of the screen.
+- Added con_notifyfade to enable notify lines fading.
+- Added con_scrlines (deafault 2) to control how many lines you scroll in console.
+- Renamed cvar gl_contrans to con_alpha.
+- Renamed cvar gl_hudtrans to cl_hudalpha.
+- New better text editing in console and chattext. You can move cursor midle to text and add or remove letters with delete
+  and backspace. The 'Insert' key toggles insert mode. Home and End while ctrl down takes you to beging/end of currently editing text.
+- Now chattext (messagemodes) got possibility to repeat lines with up and downarrow like in console.
+- Implemented Loc support.
+- Implemented stencil buffered shadows. Use gl_shadows cvar - 0 disable, 1 original, 2 enchanced.
+- Added enhanced dynamic lights so they fade out with distance. Use gl_dynamics cvar - 0 disable, 1 original, 2 enchanced.
+- Implemented hard coded default color palette (pics/colormap.pcx) to prevent annoying problems like not being able to start q2 if it isn't found.
+- Fixed winamp current song lenght code.
+- Command winampplay now accept optional parameter track number. ex. 'winamplay 150' beging to play track number 150 on your playlist.
+- Changed winampstop command so now it doesnt fadeout.
+- Renamed cvar cl_winampverbose to cl_winampmessages.
+- Added 3 new resolutions: 1024x480 (gl_mode 11), 1280x768 (gl_mode 12) & 1280x1024 (gl_mode 13).
+- Implemented stainmaps (requires gl_dynamic to be enabled) to get some blood and other effects. Use gl_stainmaps 1 to enable.
+- Added cvar gl_motionblur to enable motion blur effect if your hardware support it.
+- Added cvar gl_waterwaves (default 0) to enable water wave effect to still water, range is between 0-4.
+- Added to show cvar's default value when you write cvar without parameters. cvarlist command show cvars default value also.
+- Changed gl_loadtga -> gl_replacewal. If enabled it tries to replace all wal textures with png, tga or jpg ones if found any. Sequence is png->tga->jpg->wal.
+- Added gl_replacepcx. If enabled it tries to replace all pcx files with png, tga or jpg ones if found any. Sequence is png->tga->jpg->pcx.
+- Removed gl_conformat & gl_hudformat.
+- Changed cl_timestamps code, now cl_timestamps 1 is only for chattext and cl_timestamps 2 is for all server messages.
+- Added 6 cvar to adjust crosshair. ch_scale to scale, ch_alpha to adjust alpha, ch_pulse to add pulse effect and ch_red, ch_green & ch_blue to adjust color.
+- Added cl_maptime to show maptime in HUD. Use cl_maptimex and cl_maptimey to change position. It also got option 3 and 4 to show roundtime and this only work in aq2 mod with teamplay mode.
+- Added 'new options' under options menu where you can adjust some of the new features.
+- Added close, minimisize and maximisize button to window mode.
+- Added Mouse FOV Sensitivity Autoscaling. Use 'm_autosens' cvar to enable.
+- 'capslock' , 'mouse4' and 'mouse5' is now bindable.
+- New cvar gl_fontshadow to add shadows to all text.
+- Added cvar gl_particle to enable new particles.
+- Chaged particle texture code so now it try to load particle texture from pics/particle.tga. If not found uses old one.
+- Now maximum texture size is what your hardware is capable.
+- Removed gl_ext_palettedtexture.
+- Now highresolution png, jpg and tga pics are scaled to orginal pcx size. Before it was only for replacing textures.
+- Added new s_khz value 48 and added new sound quality value to options menu.
+- Added highlight: cl_highlight and cl_highlightmsg. Enable with cvar cl_highlight: 1 plays talk1.wav instead of talk.wav, 2 change text colour, 3 do both when cl_highlightmsg string is found in chat text.
+- Uses aprconfig.cfg instead of config.cfg
+- libpng3.dll and zlib.dll are now build in.
+- Added cl_gunalpha to adjust your weapon alpha.
+- Added cvar 'net_port' (default 0). allows you to select the local port. The value 0 means it will choose a random port.
+- Some bug fixes.
+
+1.4
+- Fixed bug that caused aviexport not to work.
+- Added png support to hud and textures.
+- Added gl_hudtrans to change hud icons transparenty.
+- gl_conformat and gl_hudformat to change what image format hudicons/console uses.
+
+1.3
+- Winamp commands to control winamp from q2.
+- Console transparent code changed.
+- Screenshot naming "<year>-<month>-<day>_<hour>-<minute>_<mapname>.jpg".
+- Aviexport from BeefQuake.
+- Support up to 8 crosshairs.
+- Inc command to increase a given cvar's value.
+
+Before 1.3
+- Autorecord & autoscreenshot from q2ace.
+- Cvar cl_chathud to show last 4 chat messages in hud.
+- Cvar skydistance to adjust sky box size.
+- Changed pak loading to load pak0-99.pak.
+- Console support in demo playback.
+- Screenshojpg to take screenshot in jpg format.
+- Adjustable Console transparency.
+- Config size limit raised to 64k.
+- Fixed 44khz sound bug.
+- cl_timestamps to add timestamps to all messages.
+- m_xpfix to fix mouse acceleration in winxp.
+- m_restart to restart mouse subsystem.
+- demolist & demoplay.
+- Mouse wheel support in console.
+- Q3 style cmd completion.
+- Wildcard support to cvarlist and cmdlist.
+- Better tga loading from q2ice.
+- TGA loading to textures & hud icons.
+- Cvar cl_fps to show fps in hud.
+- Cvar cl_clock to show fps in hud.
+- Added toggle command to toggle cvars value.
+- Changed screenshot naming to <year>-<month>-<day>_<hour>-<minute>_<map>.<tga/jpg>.
+- Some bug fixes.
+- Plus more

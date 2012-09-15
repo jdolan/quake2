@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Q2", "quake2.vcproj", "{5B9925E7-B6D6-40CF-9981-AF5B10C47710}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Q2 SW", "ref_soft\ref_soft.vcproj", "{C8962C1F-320E-43AC-B023-DC8A08C51EED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B9925E7-B6D6-40CF-9981-AF5B10C47710}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B9925E7-B6D6-40CF-9981-AF5B10C47710}.Debug|Win32.Build.0 = Debug|Win32
+		{5B9925E7-B6D6-40CF-9981-AF5B10C47710}.Release|Win32.ActiveCfg = Release|Win32
+		{5B9925E7-B6D6-40CF-9981-AF5B10C47710}.Release|Win32.Build.0 = Release|Win32
+		{C8962C1F-320E-43AC-B023-DC8A08C51EED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C8962C1F-320E-43AC-B023-DC8A08C51EED}.Release|Win32.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

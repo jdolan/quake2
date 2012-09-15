@@ -1,0 +1,10 @@
+// Recommended settings (1680x1050) -- copy this into autoexec.cfg
+
+set fs_allpakloading 1
+
+set gl_mode -1
+set r_customwidth 1680
+set r_customheight 1050
+
+set gl_scale 2.0
+set ch_scale 2.0
