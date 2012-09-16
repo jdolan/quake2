@@ -192,7 +192,7 @@ SV_CopySaveGame
 */
 static void SV_CopySaveGame (const char *src, const char *dst)
 {
-	char	name[MAX_OSPATH], name2[MAX_OSPATH];
+	char	name[MAX_OSPATH], name2[MAX_OSPATH], path[MAX_OSPATH];
 	int		l, len;
 	char	*found;
 
@@ -209,15 +209,13 @@ static void SV_CopySaveGame (const char *src, const char *dst)
 	Com_sprintf (name2, sizeof(name2), "save/%s/game.ssv", dst);
 	FS_CopyFile(name, name2);
 
-	Com_sprintf (name, sizeof(name), "save/%s/", src);
-	len = strlen(name);
-	Com_sprintf (name, sizeof(name), "save/%s/*.sav", src);
-	found = Sys_FindFirst(name, 0, 0 );
+	Com_sprintf (path, sizeof(path), "%s/save/%s/*.sav", FS_Gamedir(), src);
+	len = strlen(path) - 5;
+	found = Sys_FindFirst(path, 0, 0 );
 	while (found)
 	{
-		strcpy (name+len, found+len);
-
-		Com_sprintf (name2, sizeof(name2), "save/%s/%s", dst, found+len);
+		Com_sprintf (name, sizeof(name), "save/%s/%s", src, found + len);
+		Com_sprintf (name2, sizeof(name2), "save/%s/%s", dst, found + len);
 		FS_CopyFile(name, name2);
 
 		// change sav to sv2
@@ -275,7 +273,7 @@ void SV_ReadLevelFile (void)
 	Com_DPrintf("SV_ReadLevelFile()\n");
 
 	Com_sprintf (name, sizeof(name), "save/current/%s.sv2", sv.name);
-	FS_FOpenFile( name, &f, FS_MODE_READ|FS_TYPE_REAL );
+	FS_FOpenFile( name, &f, FS_MODE_READ|FS_TYPE_REAL|FS_PATH_GAME );
 	if (!f) {
 		Com_Printf ("Failed to open %s\n", name);
 		return;

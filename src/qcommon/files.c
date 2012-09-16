@@ -809,11 +809,13 @@ qboolean FS_CopyFile( const char *src, const char *dst )
 
 	FS_FOpenFile( src, &hSrc, FS_MODE_READ );
 	if( !hSrc ) {
+		FS_DPrintf("FS_CopyFile: Failed to open src %s\n", src);
 		return false;
 	}
 
 	FS_FOpenFile( dst, &hDst, FS_MODE_WRITE );
 	if( !hDst ) {
+		FS_DPrintf("FS_CopyFile: Failed to open dst %s\n", dst);
 		FS_FCloseFile( hSrc );
 		return false;
 	}
@@ -831,8 +833,10 @@ qboolean FS_CopyFile( const char *src, const char *dst )
 	FS_FCloseFile( hSrc );
 	FS_FCloseFile( hDst );
 
-	if(size)
+	if(size) {
+		FS_DPrintf("FS_CopyFile: Failed to write dst %s\n", dst);
 		return false;
+	}
 
 	return true;
 }
