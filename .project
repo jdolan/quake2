@@ -27,7 +27,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildArguments</key>
-					<value>-j3  -j1</value>
+					<value>-j4  -j1</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildCommand</key>
@@ -81,7 +81,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1348405347100</id>
+			<id>1348405765181</id>
 			<name></name>
 			<type>26</type>
 			<matcher>
