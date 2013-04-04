@@ -38,6 +38,12 @@ static byte	gammatable[256];
 static byte gammaintensitytable[256];
 
 static cvar_t *gl_intensity;
+static cvar_t *gl_texturelighting;
+static cvar_t *gl_brightness;
+static cvar_t *gl_contrast;
+static cvar_t *gl_saturation;
+static cvar_t *gl_monochrome;
+static cvar_t *gl_invert;
 
 uint32		d_8to24table[256];
 
@@ -1334,6 +1340,100 @@ static byte *GL_ResampleTexture (const byte *in, int inwidth, int inheight, int 
 }
 
 /*
+ * @brief Clamps the components of the specified vector to 1.0, scaling the vector
+ * down if necessary.
+ */
+static vec_t ColorNormalize(const vec3_t in, vec3_t out) {
+	vec_t max = 0.0;
+	int32_t i;
+
+	VectorCopy(in, out);
+
+	for (i = 0; i < 3; i++) { // find the brightest component
+
+		if (out[i] < 0.0) // enforcing positive values
+			out[i] = 0.0;
+
+		if (out[i] > max)
+			max = out[i];
+	}
+
+	if (max > 1.0) // clamp without changing hue
+		VectorScale(out, 1.0 / max, out);
+
+	return max;
+}
+
+/*
+ * @brief Applies brightness, saturation and contrast to the specified input color.
+ */
+static void ColorFilter(const vec3_t in, vec3_t out, float brightness, float saturation, float contrast) {
+	const vec3_t luminosity = { 0.2125, 0.7154, 0.0721 };
+	vec3_t intensity;
+	float d;
+	int32_t i;
+
+	ColorNormalize(in, out);
+
+	if (brightness != 1.0) { // apply brightness
+		VectorScale(out, brightness, out);
+
+		ColorNormalize(out, out);
+	}
+
+	if (contrast != 1.0) { // apply contrast
+
+		for (i = 0; i < 3; i++) {
+			out[i] -= 0.5; // normalize to -0.5 through 0.5
+			out[i] *= contrast; // scale
+			out[i] += 0.5;
+		}
+
+		ColorNormalize(out, out);
+	}
+
+	if (saturation != 1.0) { // apply saturation
+		d = DotProduct(out, luminosity);
+
+		VectorSet(intensity, d, d, d);
+		VectorMix(intensity, out, saturation, out);
+
+		ColorNormalize(out, out);
+	}
+}
+
+/**
+ * @brief Applies Quake2World brightness, saturation and contrast.
+ */
+static void GL_FilterTexture(byte *data, int w, int h) {
+	int i, j, c = w * h;
+	byte *p = data;
+
+	for (i = 0; i < c; i++, p += 4) {
+		vec3_t temp;
+
+		VectorScale(p, 1.0 / 255.0, temp); // convert to float
+
+		// apply brightness, saturation and contrast
+		ColorFilter(temp, temp, gl_brightness->value, gl_saturation->value, gl_contrast->value);
+
+		for (j = 0; j < 3; j++) {
+			temp[j] = Clamp(temp[j] * 255, 0, 255); // back to byte
+			p[j] = (byte) temp[j];
+		}
+
+		if (gl_monochrome->integer) // monochrome
+			p[0] = p[1] = p[2] = (p[0] + p[1] + p[2]) / 3;
+
+		if (gl_invert->integer) { // inverted
+			p[0] = 255 - p[0];
+			p[1] = 255 - p[1];
+			p[2] = 255 - p[2];
+		}
+	}
+}
+
+/*
 ================
 GL_LightScaleTexture
 
@@ -1473,8 +1573,12 @@ static qboolean GL_Upload32 (byte *data, int width, int height, qboolean mipmap,
 		scaled = GL_ResampleTexture(data, width, height, scaled_width, scaled_height);
 	}
 
-	if(!is_pic || gl_gammapics->integer)
+	if (gl_texturelighting && gl_texturelighting->integer) {
+		GL_FilterTexture(scaled, scaled_width, scaled_height);
+	}
+	else if(!is_pic || gl_gammapics->integer) {
 		GL_LightScaleTexture (scaled, scaled_width, scaled_height, !mipmap );
+	}
 
 	if(gl_state.sgis_mipmap && mipmap)
 		qglTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
@@ -2053,6 +2157,10 @@ void R_InitBuildInTextures (void)
 		gl_watercaustics->OnChange(gl_watercaustics, gl_watercaustics->resetString);
 }
 
+static void OnChange_ImageParams(cvar_t *self, const char *oldValue) {
+	Com_Printf("%s will be changed on vid_restart\n", self->name);
+}
+
 /*
 ===============
 GL_InitImages
@@ -2066,10 +2174,11 @@ void	GL_InitImages (void)
 	registration_sequence = 1;
 
 	// init intensity conversions
-	gl_intensity = Cvar_Get ("intensity", "3", 0);
+	gl_intensity = Cvar_Get ("gl_intensity", "2.666", CVAR_ARCHIVE);
+	gl_intensity->OnChange = OnChange_ImageParams;
 
 	if ( gl_intensity->value < 1 )
-		Cvar_Set( "intensity", "1" );
+		Cvar_Set( "gl_intensity", "1" );
 
 	gl_state.inverse_intensity = 1 / gl_intensity->value;
 
@@ -2092,6 +2201,24 @@ void	GL_InitImages (void)
 		clamp(j, 0, 255);
 		gammaintensitytable[i] = gammatable[j];
 	}
+
+	gl_texturelighting = Cvar_Get("gl_texturelighting", "1", CVAR_ARCHIVE);
+	gl_texturelighting->OnChange = OnChange_ImageParams;
+
+	gl_brightness = Cvar_Get("gl_brightness", "1.666", CVAR_ARCHIVE);
+	gl_brightness->OnChange = OnChange_ImageParams;
+
+	gl_contrast = Cvar_Get("gl_contrast", "1.0", CVAR_ARCHIVE);
+	gl_contrast->OnChange = OnChange_ImageParams;
+
+	gl_saturation = Cvar_Get("gl_saturation", "1.0", CVAR_ARCHIVE);
+	gl_saturation->OnChange = OnChange_ImageParams;
+
+	gl_monochrome = Cvar_Get("gl_monochrome", "0", 0);
+	gl_monochrome->OnChange = OnChange_ImageParams;
+
+	gl_invert = Cvar_Get("gl_invert", "0", 0);
+	gl_monochrome->OnChange = OnChange_ImageParams;
 
 	R_InitBuildInTextures();
 

@@ -122,7 +122,6 @@ cvar_t	*gl_cull;
 cvar_t	*gl_polyblend;
 cvar_t	*gl_flashblend;
 //cvar_t	*gl_playermip;
-cvar_t  *gl_saturatelighting;
 cvar_t	*gl_swapinterval;
 cvar_t	*gl_texturemode;
 cvar_t	*gl_texturebits;
@@ -1377,7 +1376,7 @@ static void GL_Register( void )
 	gl_particle_att_b = Cvar_Get( "gl_particle_att_b", "0.0", CVAR_ARCHIVE );
 	gl_particle_att_c = Cvar_Get( "gl_particle_att_c", "0.01", CVAR_ARCHIVE );
 
-	gl_modulate = Cvar_Get ("gl_modulate", "1.5", CVAR_ARCHIVE );
+	gl_modulate = Cvar_Get ("gl_modulate", "1.666", CVAR_ARCHIVE );
 	gl_bitdepth = Cvar_Get( "gl_bitdepth", "0", CVAR_ARCHIVE|CVAR_LATCHED );
 	gl_mode = Cvar_Get( "gl_mode", "-1", CVAR_ARCHIVE );
 
@@ -1413,8 +1412,6 @@ static void GL_Register( void )
 	gl_swapinterval = Cvar_Get( "gl_swapinterval", "1", CVAR_ARCHIVE );
 	gl_swapinterval->OnChange = OnChange_SwapInterval;
 
-	gl_saturatelighting = Cvar_Get( "gl_saturatelighting", "0", CVAR_CHEAT );
-
 	gl_3dlabs_broken = Cvar_Get( "gl_3dlabs_broken", "1", CVAR_ARCHIVE|CVAR_LATCHED );
 
 //	vid_fullscreen = Cvar_Get( "vid_fullscreen", "0", CVAR_ARCHIVE );
@@ -1429,13 +1426,13 @@ static void GL_Register( void )
 	gl_fontshadow = Cvar_Get( "gl_fontshadow", "0", CVAR_ARCHIVE);
 
 	gl_stainmaps = Cvar_Get( "gl_stainmaps", "1", CVAR_ARCHIVE|CVAR_LATCHED );
-	gl_sgis_mipmap = Cvar_Get( "gl_sgis_mipmap", "0", CVAR_LATCHED );
+	gl_sgis_mipmap = Cvar_Get( "gl_sgis_mipmap", "1", CVAR_LATCHED );
 	gl_ext_texture_compression = Cvar_Get( "gl_ext_texture_compression", "0", CVAR_ARCHIVE|CVAR_LATCHED );
 	gl_celshading = Cvar_Get ( "gl_celshading", "0", CVAR_ARCHIVE ); //Celshading
 	gl_celshading_width = Cvar_Get ( "gl_celshading_width", "4", CVAR_ARCHIVE );
 	gl_scale = Cvar_Get ("gl_scale", "2.0", CVAR_ARCHIVE);
 
-	gl_watercaustics = Cvar_Get ("gl_watercaustics", "0", 0);
+	gl_watercaustics = Cvar_Get ("gl_watercaustics", "1", 0);
 	gl_watercaustics->OnChange = OnChange_Caustics;
 
     gl_screenshot_quality = Cvar_Get( "gl_screenshot_quality", "85", CVAR_ARCHIVE );
@@ -1816,28 +1813,29 @@ static void GL_SetupExtensions ( const char *extensions )
 		Com_Printf ( "...GL_ARB_multitexture not found\n" );
 	}
 
-	if ( strstr( extensions, "GL_SGIS_multitexture" ) )
+	if (!qglActiveTextureARB)
 	{
-		if ( qglActiveTextureARB ) {
-			Com_Printf ( "...GL_SGIS_multitexture deprecated in favor of ARB_multitexture\n" );
-		} else if ( gl_ext_multitexture->integer ) {
-			qglSelectTextureSGIS = qglGetProcAddress( "glSelectTextureSGIS" );
-			if (qglSelectTextureSGIS) {
-				Com_Printf ( "...using GL_SGIS_multitexture\n" );
-				QGL_TEXTURE0 = GL_TEXTURE0_SGIS;
-				QGL_TEXTURE1 = GL_TEXTURE1_SGIS;
-				gl_state.multiTexture = true;
-				qglMTexCoord2fSGIS = qglGetProcAddress( "glMTexCoord2fSGIS" );
+		if ( strstr( extensions, "GL_SGIS_multitexture" ) )
+		{
+			if ( gl_ext_multitexture->integer ) {
+				qglSelectTextureSGIS = qglGetProcAddress( "glSelectTextureSGIS" );
+				if (qglSelectTextureSGIS) {
+					Com_Printf ( "...using GL_SGIS_multitexture\n" );
+					QGL_TEXTURE0 = GL_TEXTURE0_SGIS;
+					QGL_TEXTURE1 = GL_TEXTURE1_SGIS;
+					gl_state.multiTexture = true;
+					qglMTexCoord2fSGIS = qglGetProcAddress( "glMTexCoord2fSGIS" );
+				} else {
+					Com_Printf ("...GL_SGIS_multitexture not properly supported!\n");
+					qglMTexCoord2fSGIS = NULL;
+					qglSelectTextureSGIS = NULL;
+				}
 			} else {
-				Com_Printf ("...GL_SGIS_multitexture not properly supported!\n");
-				qglMTexCoord2fSGIS = NULL;
-				qglSelectTextureSGIS = NULL;
+				Com_Printf ( "...ignoring GL_SGIS_multitexture\n" );
 			}
 		} else {
-			Com_Printf ( "...ignoring GL_SGIS_multitexture\n" );
+			Com_Printf ( "...GL_SGIS_multitexture not found\n" );
 		}
-	} else {
-		Com_Printf ( "...GL_SGIS_multitexture not found\n" );
 	}
 
 	if (strstr( extensions, "GL_NV_texture_rectangle" )) {

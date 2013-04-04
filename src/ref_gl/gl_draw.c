@@ -44,7 +44,7 @@ void Draw_InitLocal (void)
 
 	if(gl_scale->value > 1.0){  // use high-res conchars
 
-		draw_chars = GL_FindImage("pics/conchars-highres.tga", it_pic);
+		draw_chars = GL_FindImage("pics/conchars-highres.png", it_pic);
 
 		if(!draw_chars)  // not available
 			draw_chars = GL_FindImage("pics/conchars.pcx", it_pic);

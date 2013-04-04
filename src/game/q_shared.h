@@ -403,6 +403,7 @@ extern long Q_ftol( float f );
 
 #define PlaneDiff(point,plane) (((plane)->type < 3 ? (point)[(plane)->type] : DotProduct((point), (plane)->normal)) - (plane)->dist)
 
+#define Clamp(x, y, z)			(x < y ? y : x > z ? z : x)
 #define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define CrossProduct(v1,v2,c)	((c)[0]=(v1)[1]*(v2)[2]-(v1)[2]*(v2)[1],(c)[1]=(v1)[2]*(v2)[0]-(v1)[0]*(v2)[2],(c)[2]=(v1)[0]*(v2)[1]-(v1)[1]*(v2)[0])
 
@@ -434,6 +435,8 @@ extern long Q_ftol( float f );
 
 vec_t VectorNormalize (vec3_t v);		// returns vector length
 vec_t VectorNormalize2 (const vec3_t v, vec3_t out);
+
+void VectorMix(const vec3_t v1, const vec3_t v2, float mix, vec3_t out);
 
 #define ClearBounds(mins,maxs)	((mins)[0]=(mins)[1]=(mins)[2]=99999,(maxs)[0]=(maxs)[1]=(maxs)[2]=-99999)
 void AddPointToBounds (const vec3_t v, vec3_t mins, vec3_t maxs);

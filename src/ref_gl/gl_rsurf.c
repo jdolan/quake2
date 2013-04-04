@@ -197,10 +197,7 @@ static void R_BlendLightmaps (qboolean isWorldModel)
 	{
 		qglEnable(GL_BLEND);
 
-		if ( gl_saturatelighting->integer )
-			qglBlendFunc( GL_ONE, GL_ONE );
-		else
-			qglBlendFunc (GL_ZERO, GL_SRC_COLOR );
+		qglBlendFunc (GL_ZERO, GL_SRC_COLOR );
 	}
 
 	if (isWorldModel)
@@ -706,7 +703,7 @@ dynamic:
 		}
 		qglEnd ();
 
-		if (gl_watercaustics->integer && (surf->flags & SURF_UNDERWATER) && !(image->flags & IT_TRANS))
+		if (gl_watercaustics->integer && (surf->flags & SURF_UNDERWATER) /*&& !(image->flags & IT_TRANS)*/)
 			EmitCausticPolys(surf->polys);
 
 		if(gl_eff_world_wireframe->integer)

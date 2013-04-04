@@ -456,6 +456,16 @@ vec_t VectorNormalize2 (const vec3_t v, vec3_t out)
 	return length;
 }
 
+/*
+ * @brief Combines a fraction of the second vector with the first.
+ */
+void VectorMix(const vec3_t v1, const vec3_t v2, float mix, vec3_t out) {
+	int32_t i;
+
+	for (i = 0; i < 3; i++)
+		out[i] = v1[i] * (1.0 - mix) + v2[i] * mix;
+}
+
 int Q_log2(int val)
 {
 	int answer=0;
