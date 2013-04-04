@@ -512,7 +512,7 @@ int NET_SendPacket (netsrc_t sock, int length, const void *data, const netadr_t 
 
 	NetadrToSockadr (to, &addr);
 
-	ret = sendto (ip_sockets[sock], data, length, 0, &addr, sizeof(addr) );
+	ret = sendto (ip_sockets[sock], data, length, 0, (struct sockaddr *) &addr, sizeof(addr) );
 	if (ret == SOCKET_ERROR)
 	{
 #ifdef _WIN32
