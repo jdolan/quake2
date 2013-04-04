@@ -1846,7 +1846,7 @@ void FS_InitFilesystem (void)
 	//
 	fs_developer = Cvar_Get ("fs_developer", "0", 0);
 	fs_basedir = Cvar_Get ("basedir", ".", 0);
-	fs_allpakloading = Cvar_Get ("fs_allpakloading", "0", CVAR_ARCHIVE);
+	fs_allpakloading = Cvar_Get ("fs_allpakloading", "1", CVAR_ARCHIVE);
 
 	//
 	// cddir <path>
