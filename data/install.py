@@ -23,16 +23,17 @@ config = Dictionary({
         'ctf/*'
     ],
     'demo': [
-        'baseq2/pak-quake2-demo.*'
+        'baseq2/pak-quake2-demo.pak',
+        'license-demo.txt'
     ],
     'hud': [
-        'baseq2/pak-kmquake2-hud.*',
+        'baseq2/pak-kmquake2-hud.pak',
     ],
     'models': [
-        'baseq2/pak-generations-models.*'
+        'baseq2/pak-generations-models.pak'
     ],
     'textures': [
-        'baseq2/pak-jimw-textures.*'
+        'baseq2/pak-jimw-textures.pak'
     ]
 })
 
@@ -82,20 +83,22 @@ if __name__ == '__main__':
         
     if prompt(messages.base, 'y') == 'y':
         rsync(config.base)
+        less('license.txt')
         
     if prompt(messages.ctf, 'y') == 'y':
         rsync(config.ctf)
         
     if prompt(messages.demo, 'n') == 'y':
         rsync(config.demo)
+        less('license-demo.txt')
         
-    if prompt(messages.hud, 'n') == 'y':
+    if prompt(messages.hud, 'y') == 'y':
         rsync(config.hud)
     
-    if prompt(messages.models, 'n') == 'y':
+    if prompt(messages.models, 'y') == 'y':
         rsync(config.models)
         
-    if prompt(messages.textures, 'n') == 'y':
+    if prompt(messages.textures, 'y') == 'y':
         rsync(config.textures)
         
     print messages.end
