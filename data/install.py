@@ -11,7 +11,7 @@ class Dictionary(dict):
     __delattr__ = dict.__delitem__
 
 config = Dictionary({
-    'root': 'quake2world.net::/quake2',
+    'root': 'quake2world.net::quake2',
     'base': [
         'baseq2/pak[1-3].pak',
         'baseq2/players/*',
@@ -39,23 +39,27 @@ config = Dictionary({
 messages = Dictionary({
     'begin': 'This script will install optional game data. Continue?',
     'home': 'Enter your Quake2 directory:',
-    'base': 'Install the 3.20 point release?',
-    'ctf': 'Install ThreeWave Capture the Flag?',
+    'base': 'Install the 3.20 point release? (25MB)',
+    'ctf': 'Install ThreeWave Capture the Flag? (12MB)',
     'demo': 'Install the demo? Select this if you do not own Quake2. (48MB)',
-    'hud': 'Install the KMQuake2 high-resolution HUD (0.5MB)?',
-    'models': 'Install the Generations Arena high-resolution models?',
-    'textures': 'Install JimW\'s high-resolution textures (320MB)?',
+    'hud': 'Install the KMQuake2 high-resolution HUD? (0.5MB)',
+    'models': 'Install the Generations high-resolution models? (37MB)',
+    'textures': 'Install Jim W\'s high-resolution textures? (320MB)',
     'end': 'Installation complete.'
 })
 
 def _rsync(source, target):
     """Fetches a single source pattern to the specified target."""
-    system("echo rsync -rzhP %s/%s %s" % (config.root, source, target))
+    system("rsync -rRzhP %s/%s %s" % (config.root, source, target))
     
 def rsync(module):
     """Fetches all path patterns in the specified module."""
     for path in module:
         _rsync(path, config.home)
+
+def less(file):
+    """Dumps the file to the console."""
+    system("less %s/%s" % (config.home, file))
 
 def prompt(message, default=''):
     """Prompts the user for input, returning their response."""
