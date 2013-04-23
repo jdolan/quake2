@@ -1,0 +1,3 @@
+bin/quake2
+bin/game.so
+*.o
