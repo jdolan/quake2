@@ -2,7 +2,9 @@
 <!-- Version: 14 -->
 <!-- Last-Modified: 2012/12/27 15:03:02 -->
 <!-- Author: jdolan -->
-# Quake2 for Mac and Linux
+# Quake II for Mac and Linux
+
+![Quake II for Mac and Linux](blob/master/github-screenshot.jpg)
 
 ## Overview
 
@@ -16,7 +18,7 @@ Here you'll find pre-compiled packages of classic _[Quake II](http://en.wikipedi
  * Numerous stability fixes around SDL audio
  * Numerous 64 bit compatibility fixes
 
-A full list of my changes is available in the [source:quake2/trunk/CHANGELOG CHANGELOG].
+A full list of my changes is available in the [CHANGELOG](blob/master/CHANGELOG).
 
 ## Downloads
 
@@ -35,15 +37,7 @@ If you want to play the full single-player game, you must provide the retail gam
 
 ## Compiling
 
-Compiling this version of _Quake II_ is actually quite easy if you follow the [Quake2World developers' guide](http://quake2world.net/books/documentation/developing-and-modding) to install all of the game's dependencies. Once you've installed the dependencies, simply typing `make` should build the game for you. The [source:quake2/trunk/INSTALL INSTALL] file located in the source directory covers the details and walks you through installing the _Quake II_ game data, too.
-
- * svn://quake2world.net/quake2/trunk
-
-## Screenshots
-
-The following screenshots were taken on OS X (Snow Leopard).
-
-[[Image(2011-02-23_21-09_q2dm1-02.jpg, 250px)]] [[Image(2011-02-23_21-10_q2dm2-00.jpg, 250px)]] [[Image(2011-02-23_21-11_q2dm3-00.jpg, 250px)]]
+Compiling this version of _Quake II_ is actually quite easy if you follow the [Quake2World developers' guide](http://quake2world.net/books/documentation/developing-and-modding) to install all of the game's dependencies. Once you've installed the dependencies, simply typing `make` should build the game for you. The [INSTALL](blob/master/INSTALL) file located in the source directory covers the details and walks you through installing the _Quake II_ game data, too.
 
 ## Support
  * The best way to reach me for support is in *#quetoo* on *irc.freenode.net*
