@@ -1,47 +1,13 @@
-== Overview ==
+= INSTALL =
 
-AprQ2 installation is fairly straightforward. Type 'make' to build the game.
-Feel free to edit Makefile to meet your needs, but do so at your own peril.
-By default, the binaries will be built to the 'releasei386' directory.  Copy
-them to an appropriate path (e.g. ~/.quake2, /usr/share/games/quake2, etc).
+Compiling and installing this version of _Quake II_ is pretty straightforward:
 
-== Dependencies ==
+    make
+    make install
 
-This version of AprQ2 should compile cleanly on recent Linux distributions and
-on Apple OS X 10.6 (Snow Leopard). For Linux, you should install libSDL and
-libCURL via your package manager. For OS X, you should install libSDL and 
-libCURL through MacPorts.
+This will compile the game engine and game module, and install them to `~/.quake2`.
+To install the game to a different location, use:
 
-If you get stuck installing dependencies, try the instructions for your
-platform here:
+    make DESTDIR=/path/to/quake install
 
-  http://quake2world.net/books/documentation/installation-maintenance 
-
-== Installation ==
-
-1. Create your Quake2 directory.
-  mkdir -p ~/.quake2/baseq2
-  
-2. Install the Quake2 game data
-  cp /path/to/pak*.pak ~/.quake2/baseq2
-  
-3. Compile AprQ2
-  cd /path/to/aprq2/trunk
-  make -j3
-
-4. Install the binaries
-  install bin/aq2 ~/.quake2
-  install bin/game.so ~/.quake2/baseq2
-  
-5. Install the optional game data (recommended)
-  svn export --force data ~/.quake2
-
-6. Start the game
-  cd ~/.quake2
-  ./aq2
-  
-== High-resolution textures ==
-
-R1CH (http://r1ch.net) has provided an excellent high-color, high-resolution
-texture "pak" that looks fantastic in AprQ2. It has been included in this
-distribution. If you don't like the textures, use gl_replacewal 0.  
+To install the game data, run `./data/install-data.py` and follow the prompts.
