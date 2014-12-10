@@ -3,37 +3,42 @@
 DATA = ../data
 TARGET = target
 QUAKE2 = $(TARGET)/Quake\ II.app
-LIBRARIES = $(QUAKE2)/Contents/Libraries
-BINARIES = $(QUAKE2)/Contents/MacOS
-RESOURCES = $(QUAKE2)/Contents/Resources
-DMG = $(TARGET)/Quake\ II\ \(Quake2World.net\).dmg
+BINDIR = $(QUAKE2)/Contents/MacOS
+DATADIR = $(QUAKE2)/Contents/Resources
+DIST = $(TARGET)/Quake\ II\ \(Quake2World.net\).dmg
 VOLUME_NAME = Quake\ II\ \(Quake2World.net\)
-HTTP_REPOSITORY = quake2world.net:/var/www/quake2world/files
+REMOTE_USER = $(shell whoami)
+HTTP_REPOSITORY = quake2world.net:/var/www/quake2world.net/files
+HTTP_TARGET = $(REMOTE_USER)@$(HTTP_REPOSITORY)
 
-all: bundle
+all: install-lib
 
 pre-install:
 	install -d $(TARGET)
-	svn export --force Quake\ II.app $(QUAKE2)
+	cp -r Quake\ II.app $(QUAKE2)
+	find $(QUAKE2) -name .turd -delete
 
 install: pre-install
-	install ../bin/quake2 $(BINARIES)/quake2
-	install ../bin/game.so $(BINARIES)/baseq2/game.so
+	install ../bin/quake2 $(BINDIR)/quake2
+	install ../bin/game.so $(BINDIR)/baseq2/game.so
+
+install-lib: install
+	dylibbundler -b \
+		-x "$(BINDIR)/quake2" \
+	-d "$(BINDIR)" -of -p @executable_path
 
 install-data:
-	svn export --force $(DATA) $(RESOURCES)
+	cp -R $(DATA)/ $(DATADIR)
+	find $(DATADIR) -name .turd -delete
 
-bundle: install install-data
-	dylibbundler -b \
-		-x "$(BINARIES)/quake2" \
-	-d "$(LIBRARIES)" -of -p @executable_path/../Libraries
-
-image: bundle
+dist:
 	ln -f -s /Applications $(TARGET)/Applications
-	hdiutil create $(DMG) -srcfolder $(TARGET) -volname $(VOLUME_NAME)
+	hdiutil create $(DIST) -srcfolder $(TARGET) -volname $(VOLUME_NAME)
 
-release-image: image
-	scp $(DMG) $(HTTP_REPOSITORY)
+dist-release:
+	rsync -rzhP $(DIST) $(HTTP_TARGET)
 
 clean:
-	rm -rf $(TARGET)
+	rm -rf $(TARGET)/*
+	
+.PHONY: all pre-install install install-lib install-data dist dist-release
