@@ -1,9 +1,7 @@
 # Makefile for Quake2 (Quake2World.net) Linux distributable
 
-DATA = ../data
 TARGET = target
 QUAKE2 = $(TARGET)/quake2
-LIBDIR = $(QUAKE2)/lib
 BINDIR = $(QUAKE2)/bin
 DATADIR = $(QUAKE2)/share
 DIST = $(TARGET)/quake2-quake2world.net-x86_64.tar.gz
@@ -16,15 +14,14 @@ all: install
 pre-install:
 	install -d $(TARGET)
 	cp -R quake2 $(QUAKE2)
+
+install-bin: pre-install
+	make -C .. DESTDIR=$(realpath $(BINDIR)) install
+
+post-install: install
 	find $(QUAKE2) -name .turd -delete
 
-install: pre-install
-	install ../bin/quake2 $(BINDIR)/quake2
-	install ../bin/game.so $(LIBDIR)/baseq2/game.so
-
-install-data:
-	cp -R $(DATA)/ $(DATADIR)
-	find $(DATADIR) -name .turd -delete
+install: pre-install install post-install
 
 dist:
 	tar -czvf $(DIST) -C $(QUAKE2)
@@ -34,5 +31,3 @@ dist-release:
 
 clean:
 	rm -rf $(TARGET)/*
-
-.PHONY: all pre-install install install-data dist dist-release

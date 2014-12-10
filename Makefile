@@ -5,6 +5,9 @@
 # Check OS type.
 PLATFORM=$(shell uname -s|tr A-Z a-z)
 
+# Installation directory
+DESTDIR=$(HOME)/.quake2
+
 ifneq ($(PLATFORM),linux)
 	ifneq ($(PLATFORM),freebsd)
 		ifneq ($(PLATFORM),darwin)
@@ -209,6 +212,13 @@ GAME_OBJS = \
 bin/game.so : $(GAME_OBJS)
 	@echo "[LD] game.so"
 	@$(CC) $(CFLAGS) -shared -o $@ $(GAME_OBJS)
+
+# The install target
+install: targets
+	install -d "$(DESTDIR)/baseq2"
+	install bin/quake2 "$(DESTDIR)"
+	install bin/game.so "$(DESTDIR)/baseq2"
+	install data/install-data.py "$(DESTDIR)"
 
 # The clean target.
 clean:

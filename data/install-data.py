@@ -14,6 +14,7 @@ config = Dictionary({
     'root': 'quake2world.net::quake2',
     'base': [
         'baseq2/pak[1-3].pak',
+        'baseq2/pak-quake2-extras.pak',
         'baseq2/players/*',
         '3.20_changes.txt',
         'license.txt',

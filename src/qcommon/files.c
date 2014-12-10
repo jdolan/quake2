@@ -1891,7 +1891,7 @@ void FS_InitFilesystem (void)
 		FS_DPrintf("FS_InitFilesystem: Resolved executable path %s\n", path);
 
 		if ((c = strstr(path, "quake2/bin"))) {
-			strcpy(c + strlen("quake2/"), "lib/"BASEDIRNAME);
+			strcpy(c + strlen("quake2/"), "bin/"BASEDIRNAME);
 			FS_AddGameDirectory(path);
 
 			strcpy(c + strlen("quake2/"), "share/"BASEDIRNAME);
