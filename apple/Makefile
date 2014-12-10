@@ -15,7 +15,7 @@ all: install-lib
 
 pre-install:
 	install -d $(TARGET)
-	cp -r Quake\ II.app $(QUAKE2)
+	cp -R Quake\ II.app $(QUAKE2)
 	find $(QUAKE2) -name .turd -delete
 
 install: pre-install
