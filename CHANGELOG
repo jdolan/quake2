@@ -1,5 +1,6 @@
 Changes from AprQ2 v1.211
 
+- Packaging scripts for GNU/Linux and Apple OS X.
 - Nearly all dynamic light colors and sizes have been adjusted.
 - Added dynamic light at rail trail end position.
 - Added dynamic light at bullet mark position.
@@ -12,16 +13,17 @@ Changes from AprQ2 v1.211
 - Change quite a few cvar value defaults.
 - Fixed gl_scale glitch when starting up the refresh.
 - Decrease cl_blend intensity.
-- Use sane build targets on GNU/Linux.
+- Fix numerous integer overflow bugs found with Clang.
+- Fix numerous logical operator bugs found with Clang.
 - Fixed game.so build on GNU/Linux.
+- Fix Apple OS X build.
+- Fixed saved game support on GNU/Linux and OS X.
 - Default gl_texturemode to GL_LINEAR_MIPMAP_LINEAR (bilinear filtering).
 - Fixed Anisotropic filtering (use glTexParameterf instead of glTexParameterv).
 - Added multisample (FSAA) support for SDL refresh, use gl_multisample 1/2/4.
 - Fixed gl_swapinterval (v-sync) for SDL refresh.
 - Use high-resolution console characters when gl_scale > 1.0.
 - Update to R1Q2 protocol version 1905.
-
-- Fix Apple OS X build.
 
 ** While some might hastily call this a "cheat", I say it allows players to
 use decent looking gl_modulate and intensity values while still seeing items
