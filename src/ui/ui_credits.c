@@ -417,7 +417,7 @@ void M_Credits_MenuDraw( menuframework_s *self )
 		}
 	}
 
-	if ( y < 0 )
+	if ( y > viddef.height )
 		credits_start_time = cls.realtime;
 }
 

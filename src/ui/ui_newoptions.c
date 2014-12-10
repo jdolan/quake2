@@ -330,7 +330,7 @@ void Options_MenuInit2( void )
 
 	int y, i;
 
-	memset(&s_options_menu2, 0, sizeof(&s_options_menu2));
+	memset(&s_options_menu2, 0, sizeof(s_options_menu2));
 	/*
 	** configure controls menu and menu items
 	*/

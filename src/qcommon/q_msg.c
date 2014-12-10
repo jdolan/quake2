@@ -170,9 +170,9 @@ void MSG_WriteDeltaUsercmd (sizebuf_t *buf, const usercmd_t *from, const usercmd
 		{
 			if ((bits & CM_FORWARD) && !(cmd->forwardmove % 5))
 				buttons |= BUTTON_UCMD_DBLFORWARD;
-			if ((bits && CM_SIDE) && !(cmd->sidemove % 5))
+			if ((bits & CM_SIDE) && !(cmd->sidemove % 5))
 				buttons |= BUTTON_UCMD_DBLSIDE;
-			if ((bits && CM_UP) && !(cmd->upmove % 5))
+			if ((bits & CM_UP) && !(cmd->upmove % 5))
 				buttons |= BUTTON_UCMD_DBLUP;
 
 			if ((bits & CM_ANGLE1) && !(cmd->angles[0] % 64) && (abs(cmd->angles[0] / 64)) < 128)
