@@ -24,8 +24,8 @@ A full list of my changes is available in the [CHANGELOG](CHANGELOG).
 
 These packages come with the 3.14 demo and 3.20 point release data (one Single Player map, all of the official Deathmatch maps, and Capture the Flag). You can play the game immediately after installing.
 
- * [Quake II (Quetoo.org)](http://quetoo.org/files/Quake%20II%20%28Quake2World.net%29.dmg) for Mac OSX 10.6 or later
- * [Quake II (Quetoo.org)](http://quetoo.org/files/quake2-quake2world.net-x86_64.tar.gz) for GNU/Linux 64 bit
+ * [Quake II (Quake2World.net)](http://quetoo.org/files/Quake%20II%20%28Quake2World.net%29.dmg) for Mac OSX 10.6 or later
+ * [Quake II (Quake2World.net)](http://quetoo.org/files/quake2-quake2world.net-x86_64.tar.gz) for GNU/Linux 64 bit
 
 ## Installation
 
