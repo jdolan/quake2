@@ -24,7 +24,7 @@ ifeq ($(PLATFORM),darwin)
 endif
 
 DEBUG_CFLAGS=$(CFLAGS) -g -Wall
-RELEASE_CFLAGS=$(CFLAGS) -O2 -Wall -DNDEBUG
+RELEASE_CFLAGS=$(CFLAGS) -g -O2 -Wall -DNDEBUG
 
 ifeq ($(PLATFORM),freebsd)
 	LDFLAGS=-lm
@@ -32,19 +32,21 @@ else
 	LDFLAGS=-lm -ldl
 endif
 
-
 LDFLAGS += $(shell sdl-config --libs)
 LDFLAGS += $(shell curl-config --libs)
 LDFLAGS += -ljpeg -lpng -lz
 
 all: debug
 
+bin:
+	mkdir -p bin
+
 # Debug target.
-debug:
+debug: bin
 	$(MAKE) targets CFLAGS="$(DEBUG_CFLAGS)"
 
 # Release target.
-release:
+release: bin
 	$(MAKE) targets CFLAGS="$(RELEASE_CFLAGS)"
 
 # Engine and game module targets.
