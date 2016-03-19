@@ -2,7 +2,7 @@
 <!-- Version: 14 -->
 <!-- Last-Modified: 2012/12/27 15:03:02 -->
 <!-- Author: jdolan -->
-# Quake II for Mac and Linux (Quetoo.org)
+# Quake II for Mac and Linux by Quetoo.org
 
 ![Quake II for Mac and Linux](github-screenshot.jpg)
 
