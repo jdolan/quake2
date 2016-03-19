@@ -23,9 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../game/q_shared.h"
 
 
-#define APPLICATION "Quake II (Quake2World.net)"
+#define APPLICATION "Quake II (Quetoo.org)"
 
-#define	VERSION		"1.212"
+#define	VERSION		"1.213"
 
 
 #define	BASEDIRNAME	"baseq2"

@@ -1403,7 +1403,7 @@ static void ColorFilter(const vec3_t in, vec3_t out, float brightness, float sat
 }
 
 /**
- * @brief Applies Quake2World brightness, saturation and contrast.
+ * @brief Applies Quetoo brightness, saturation and contrast.
  */
 static void GL_FilterTexture(byte *data, int w, int h) {
 	int i, j, c = w * h;

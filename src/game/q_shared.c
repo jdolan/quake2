@@ -643,6 +643,10 @@ void COM_DefaultExtension (char *path, size_t size, const char *extension)
 	Q_strncatz (path, extension, size);
 }
 
+// TODO: This source file is encoded in Latin-1 (ISO-8859-1). Newer GCC and
+// Clang want UTF8, and bark about these high-bit character literals. The
+// "right" way to handle this, would be to use wchar, convert the literals
+// to their wchar equivalents, and save the file as UTF-8. Oh well.
 void COM_MakePrintable (char *s)
 {
 	char *string = s;
