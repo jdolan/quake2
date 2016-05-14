@@ -59,6 +59,11 @@ static void Maps_Free( void ) {
 	maplist.itemnames = NULL;
 }
 
+static int Maps_Scan_compare(const void *a, const void *b) {
+	return strcmp(*(const char **) a, *(const char **) b);
+}
+
+
 static void Maps_Scan( void)
 {
 	int		numFiles;
@@ -95,6 +100,7 @@ static void Maps_Scan( void)
 	}
 	Z_Free( list );
 
+	qsort(mapnames, map_count, sizeof(char *), Maps_Scan_compare);
 }
 
 static void Build_MapList(void)

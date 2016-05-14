@@ -1958,12 +1958,15 @@ int	Developer_searchpath (void)
 	return 0;
 }
 
+/*
+ * Finds *.bsp files from Pakfiles _only_.
+ */
 char **FS_FindMaps(void) {
 	searchpath_t *path;
 	pack_t *pack;
 	packfile_t *file;
 
-	static char *maps[256];
+	static char *maps[1024];
 	int mapCount = 0;
 
 	for(path = fs_searchpaths; path; path = path->next) {
@@ -2005,6 +2008,7 @@ char **FS_FindMaps(void) {
 			}
 		}
 	}
+
 	maps[mapCount] = "";
 	return maps;
 }
