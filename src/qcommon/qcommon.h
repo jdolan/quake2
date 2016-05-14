@@ -848,6 +848,7 @@ char **FS_ListFiles( const char *findname, int *numfiles, unsigned musthave, uns
 
 qboolean FS_NeedRestart ( void );
 void FS_Restart( void );
+char **FS_FindMaps( void );
 
 /*
 ==============================================================
