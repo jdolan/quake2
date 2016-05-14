@@ -17,14 +17,14 @@ ifneq ($(PLATFORM),linux)
 endif
 
 CC=gcc
-CFLAGS=-funsigned-char -pipe $(shell sdl-config --cflags) -DGL_QUAKE -DUSE_SDL -DUSE_CURL
+CFLAGS=-funsigned-char -pipe $(shell sdl-config --cflags) -DCD_AUDIO -DGL_QUAKE -DUSE_SDL -DUSE_CURL
 
 ifeq ($(PLATFORM),darwin)
 	CFLAGS += -D__APPLE__ -I/opt/local/include
 endif
 
 DEBUG_CFLAGS=$(CFLAGS) -g -Wall
-RELEASE_CFLAGS=$(CFLAGS) -O2 -Wall -DNDEBUG
+RELEASE_CFLAGS=$(CFLAGS) -g -O2 -Wall -DNDEBUG
 
 ifeq ($(PLATFORM),freebsd)
 	LDFLAGS=-lm
@@ -32,19 +32,21 @@ else
 	LDFLAGS=-lm -ldl
 endif
 
-
 LDFLAGS += $(shell sdl-config --libs)
 LDFLAGS += $(shell curl-config --libs)
 LDFLAGS += -ljpeg -lpng -lz
 
 all: debug
 
+bin:
+	mkdir -p bin
+
 # Debug target.
-debug:
+debug: bin
 	$(MAKE) targets CFLAGS="$(DEBUG_CFLAGS)"
 
 # Release target.
-release:
+release: bin
 	$(MAKE) targets CFLAGS="$(RELEASE_CFLAGS)"
 
 # Engine and game module targets.

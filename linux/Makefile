@@ -26,7 +26,7 @@ install-lib:
 install: pre-install install-bin install-lib
 
 dist:
-	tar -czvf $(DIST) -C $(QUAKE2)
+	tar -czvf $(DIST) -C $(TARGET) quake2
 
 dist-release:
 	rsync -rzhP $(DIST) $(HTTP_TARGET)
