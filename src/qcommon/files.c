@@ -1957,3 +1957,54 @@ int	Developer_searchpath (void)
 
 	return 0;
 }
+
+char **FS_FindMaps(void) {
+	searchpath_t *path;
+	pack_t *pack;
+	packfile_t *file;
+
+	static char *maps[256];
+	int mapCount = 0;
+
+	for(path = fs_searchpaths; path; path = path->next) {
+		if(!(pack = path->pack))
+			continue;
+		for(int i = 0; i < pack->hashSize; i++) {
+			if(!(file = pack->fileHash[i]))
+				continue;
+			for( ; file ; file = file->hashNext) {
+				char *fileName = strdup(file->name);
+				
+				if(!fileName)
+					continue;
+
+				char *dot = strrchr(fileName, '.');
+				if (dot && !strcmp(dot, ".bsp")) {
+
+					char *token = strtok(fileName, "/");
+					char *mapName;
+					while(token != NULL) {
+						mapName = token;
+			      token = strtok(NULL, "/");
+			   	}
+			   	
+			    mapName[strlen(mapName)-4] = '\0';
+
+			    bool alreadyFound = false;
+			    for(int o = 0; o < mapCount; o++) {
+			    	if(strcmp(maps[o], mapName) == 0) {
+			    		alreadyFound = true;
+			    		break;
+			    	}
+			    }
+
+			    if(!alreadyFound) {
+			    	maps[mapCount++] = mapName;
+			    }
+				}
+			}
+		}
+	}
+	maps[mapCount] = "";
+	return maps;
+}

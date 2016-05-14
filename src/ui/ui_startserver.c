@@ -63,13 +63,20 @@ static void Maps_Scan( void)
 {
 	int		numFiles;
 	char	findname[1024];
-	char	**list;
+	char	**list, **maps;
 	int		i;
 
 	Maps_Free();
 
 	Com_sprintf(findname, sizeof(findname), "%s/maps/*.bsp", FS_Gamedir());
 	list = FS_ListFiles( findname, &numFiles, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
+
+  maps = FS_FindMaps();
+  while (strcmp("", maps[map_count]) != 0 && map_count < MAX_MENU_MAPS) {
+    mapnames[map_count] = CopyString(maps[map_count], TAG_MENU);
+		map_count++;
+  }
+
 	if( !list ) {
 		return;
 	}
