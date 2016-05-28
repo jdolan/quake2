@@ -1993,7 +1993,7 @@ char **FS_FindMaps(void) {
 			   	
 			    mapName[strlen(mapName)-4] = '\0';
 
-			    bool alreadyFound = false;
+			    qboolean alreadyFound = false;
 			    for(int o = 0; o < mapCount; o++) {
 			    	if(strcmp(maps[o], mapName) == 0) {
 			    		alreadyFound = true;
