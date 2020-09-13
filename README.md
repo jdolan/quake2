@@ -38,5 +38,15 @@ If you want to play the full single-player game, you must provide the retail gam
 
 Compiling this version of _Quake II_ is actually quite easy if you follow the [Quetoo developers' guide](http://quetoo.org/books/documentation/developing-and-modding) to install all of the game's dependencies. Once you've installed the dependencies, simply typing `make` should build the game for you. The [INSTALL](INSTALL) file located in the source directory covers the details and walks you through installing the _Quake II_ game data, too.
 
+Dependencies on Ubuntu 18.04:
+
+* libcurl4-openssl-dev
+* libjpeg-dev
+* libpng-dev
+* zlib1g-dev
+* mesa-common-dev
+* libsdl1.2-dev
+
+
 ## Support
  * The IRC channel for this project is *#quetoo* on *irc.freenode.net*
