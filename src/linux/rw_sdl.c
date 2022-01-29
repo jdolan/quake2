@@ -52,8 +52,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /*****************************************************************************/
 static qboolean                 X11_active = false;
 
-static SDL_Surface *surface;
-#ifndef GL_QUAKE
+static SDL_Window *window;
+#ifdef GL_QUAKE
+static SDL_GLContext glcontext;
+#else
 static unsigned int sdl_palettemode;
 #endif
 
@@ -157,34 +159,34 @@ void TragicDeath(int signal_num)
 }
 #endif
 
-int XLateKey(unsigned int keysym)
+int XLateKey(unsigned int keysym, unsigned int scancode)
 {
 	int key;
 
 	key = 0;
 	switch(keysym) {
-	case SDLK_KP9:			key = K_KP_PGUP; break;
+	case SDLK_KP_9:			key = K_KP_PGUP; break;
 	case SDLK_PAGEUP:		key = K_PGUP; break;
 
-	case SDLK_KP3:			key = K_KP_PGDN; break;
+	case SDLK_KP_3:			key = K_KP_PGDN; break;
 	case SDLK_PAGEDOWN:		key = K_PGDN; break;
 
-	case SDLK_KP7:			key = K_KP_HOME; break;
+	case SDLK_KP_7:			key = K_KP_HOME; break;
 	case SDLK_HOME:			key = K_HOME; break;
 
-	case SDLK_KP1:			key = K_KP_END; break;
+	case SDLK_KP_1:			key = K_KP_END; break;
 	case SDLK_END:			key = K_END; break;
 
-	case SDLK_KP4:			key = K_KP_LEFTARROW; break;
+	case SDLK_KP_4:			key = K_KP_LEFTARROW; break;
 	case SDLK_LEFT:			key = K_LEFTARROW; break;
 
-	case SDLK_KP6:			key = K_KP_RIGHTARROW; break;
+	case SDLK_KP_6:			key = K_KP_RIGHTARROW; break;
 	case SDLK_RIGHT:		key = K_RIGHTARROW; break;
 
-	case SDLK_KP2:			key = K_KP_DOWNARROW; break;
+	case SDLK_KP_2:			key = K_KP_DOWNARROW; break;
 	case SDLK_DOWN:			key = K_DOWNARROW; break;
 
-	case SDLK_KP8:			key = K_KP_UPARROW; break;
+	case SDLK_KP_8:			key = K_KP_UPARROW; break;
 	case SDLK_UP:			key = K_UPARROW; break;
 
 	case SDLK_ESCAPE:		key = K_ESCAPE; break;
@@ -220,23 +222,20 @@ int XLateKey(unsigned int keysym)
 	case SDLK_LCTRL:
 	case SDLK_RCTRL:		key = K_CTRL; break;
 
-	case SDLK_LMETA:
-	case SDLK_RMETA:
+	case SDLK_LGUI:
+	case SDLK_RGUI:
 	case SDLK_LALT:
 	case SDLK_RALT:			key = K_ALT; break;
 
-	case SDLK_KP5:			key = K_KP_5; break;
+	case SDLK_KP_5:			key = K_KP_5; break;
 
 	case SDLK_INSERT:		key = K_INS; break;
-	case SDLK_KP0:			key = K_KP_INS; break;
+	case SDLK_KP_0:			key = K_KP_INS; break;
 
 	case SDLK_KP_MULTIPLY:	key = '*'; break;
 	case SDLK_KP_PLUS:		key = K_KP_PLUS; break;
 	case SDLK_KP_MINUS:		key = K_KP_MINUS; break;
 	case SDLK_KP_DIVIDE:	key = K_KP_SLASH; break;
-
-	/* suggestions on how to handle this better would be appreciated */
-	case SDLK_WORLD_7:		key = '`'; break;
 
 	default: /* assuming that the other sdl keys are mapped to ascii */
 		if (keysym < 128)
@@ -244,14 +243,19 @@ int XLateKey(unsigned int keysym)
 		break;
 	}
 
+	if (key >= MAX_KEYS) {
+		return 0;
+	}
+
 	return key;
 }
 
-static unsigned char KeyStates[SDLK_LAST];
+static unsigned char KeyStates[MAX_KEYS];
 
 void GetEvent(SDL_Event *event)
 {
 	unsigned int key;
+	unsigned int xlkey;
 
 	switch(event->type) {
 	case SDL_MOUSEBUTTONDOWN:
@@ -274,56 +278,49 @@ void GetEvent(SDL_Event *event)
 	case SDL_MOUSEBUTTONUP:
 		break;
 	case SDL_KEYDOWN:
-		if ( (KeyStates[SDLK_LALT] || KeyStates[SDLK_RALT]) &&
+		xlkey = XLateKey(event->key.keysym.sym, event->key.keysym.scancode);
+
+		if ( (KeyStates[K_ALT]) &&
 			(event->key.keysym.sym == SDLK_RETURN) ) {
-			cvar_t	*fullscreen;
+			cvar_t	*fullscreen = Cvar_Get( "vid_fullscreen", "0", 0 );
 
-			SDL_WM_ToggleFullScreen(surface);
-
-			if (surface->flags & SDL_FULLSCREEN) {
+			if (!fullscreen->integer) {
 				Cvar_SetValue( "vid_fullscreen", 1 );
+				SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 			} else {
 				Cvar_SetValue( "vid_fullscreen", 0 );
+				SDL_SetWindowFullscreen(window, 0);
 			}
 
-			fullscreen = Cvar_Get( "vid_fullscreen", "0", 0 );
-			fullscreen->modified = false;	// we just changed it with SDL.
+			fullscreen->modified = false;
 
 			break; /* ignore this key */
 		}
 
-		if ( (KeyStates[SDLK_LCTRL] || KeyStates[SDLK_RCTRL]) &&
-			(event->key.keysym.sym == SDLK_g) ) {
-			SDL_GrabMode gm = SDL_WM_GrabInput(SDL_GRAB_QUERY);
-			/*	
-			SDL_WM_GrabInput((gm == SDL_GRAB_ON) ? SDL_GRAB_OFF : SDL_GRAB_ON);
-			gm = SDL_WM_GrabInput(SDL_GRAB_QUERY);
-			*/
-			Cvar_SetValue( "_windowed_mouse", (gm == SDL_GRAB_ON) ? /*1*/ 0 : /*0*/ 1 );
+		KeyStates[xlkey] = 1;
 
-			break; /* ignore this key */
-		}
-
-		KeyStates[event->key.keysym.sym] = 1;
-
-		key = XLateKey(event->key.keysym.sym);
+		key = xlkey;
 		if (key) {
 			keyq[keyq_head].key = key;
 			keyq[keyq_head].down = true;
 			keyq_head = (keyq_head + 1) & 63;
 		}
+
 		break;
 	case SDL_KEYUP:
-		if (KeyStates[event->key.keysym.sym]) {
-			KeyStates[event->key.keysym.sym] = 0;
+		xlkey = XLateKey(event->key.keysym.sym, event->key.keysym.scancode);
 
-			key = XLateKey(event->key.keysym.sym);
+		if (KeyStates[xlkey]) {
+			KeyStates[xlkey] = 0;
+
+			key = xlkey;
 			if (key) {
 				keyq[keyq_head].key = key;
 				keyq[keyq_head].down = false;
 				keyq_head = (keyq_head + 1) & 63;
 			}
 		}
+
 		break;
 	case SDL_QUIT:
 		Cbuf_ExecuteText(EXEC_NOW, "quit");
@@ -342,7 +339,7 @@ void GetEvent(SDL_Event *event)
 */
 int SWimp_Init( void *hInstance, void *wndProc )
 {
-	if (SDL_WasInit(SDL_INIT_AUDIO|SDL_INIT_CDROM|SDL_INIT_VIDEO) == 0) {
+	if (SDL_WasInit(SDL_INIT_AUDIO|SDL_INIT_VIDEO) == 0) {
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			Sys_Error("SDL Init failed: %s\n", SDL_GetError());
 			return false;
@@ -374,7 +371,6 @@ int GLimp_Init( void *hInstance, void *wndProc )
 static void SetSDLIcon(void) {
 #include "q2icon.xbm"
     SDL_Surface * icon;
-    SDL_Color color;
     Uint8 * ptr;
     int i, mask;
 
@@ -382,16 +378,7 @@ static void SetSDLIcon(void) {
 				0, 0, 0, 0);
     if (icon == NULL)
 		return; /* oh well... */
-    SDL_SetColorKey(icon, SDL_SRCCOLORKEY, 0);
-
-    color.r = 255;
-    color.g = 255;
-    color.b = 255;
-    SDL_SetColors(icon, &color, 0, 1); /* just in case */
-    color.r = 0;
-    color.g = 16;
-    color.b = 0;
-    SDL_SetColors(icon, &color, 1, 1);
+    SDL_SetColorKey(icon, SDL_TRUE, 0);
 
     ptr = (Uint8 *)icon->pixels;
     for (i = 0; i < sizeof(q2icon_bits); i++) {
@@ -401,7 +388,7 @@ static void SetSDLIcon(void) {
 		}
     }
 
-    SDL_WM_SetIcon(icon, NULL);
+    SDL_SetWindowIcon(window, icon);
     SDL_FreeSurface(icon);
 }
 
@@ -422,13 +409,19 @@ static qboolean SDLimp_InitGraphics( qboolean fullscreen )
 	const SDL_VideoInfo* vinfo;
 #endif
 
-	/* Just toggle fullscreen if that's all that has been changed */
-	if (surface && (surface->w == vid.width) && (surface->h == vid.height)) {
-		int isfullscreen = (surface->flags & SDL_FULLSCREEN) ? 1 : 0;
-		if (fullscreen != isfullscreen)
-			SDL_WM_ToggleFullScreen(surface);
+	unsigned int windowFlags = SDL_GetWindowFlags(window);
+	int windowWidth, windowHeight;
 
-		isfullscreen = (surface->flags & SDL_FULLSCREEN) ? 1 : 0;
+	SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+	/* Just toggle fullscreen if that's all that has been changed */
+	if (window && (windowWidth == vid.width) && (windowHeight == vid.height)) {
+		int isfullscreen = (windowFlags & SDL_WINDOW_FULLSCREEN) ? 1 : 0;
+
+		if (fullscreen != isfullscreen)
+			SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+
+		isfullscreen = (windowFlags & SDL_WINDOW_FULLSCREEN) ? 1 : 0;
 		if (fullscreen == isfullscreen)
 			return true;
 	}
@@ -436,8 +429,8 @@ static qboolean SDLimp_InitGraphics( qboolean fullscreen )
 	srandom(getpid());
 
 	// free resources in use
-	if (surface)
-		SDL_FreeSurface(surface);
+	if (window)
+		SDL_DestroyWindow(window);
 
 	// let the sound and input subsystems know about the new window
 	VID_NewWindow (vid.width, vid.height);
@@ -457,9 +450,9 @@ static qboolean SDLimp_InitGraphics( qboolean fullscreen )
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
 	}
 
-	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, gl_swapinterval->integer);
+	SDL_GL_SetSwapInterval(gl_swapinterval->integer);
 
-	flags = SDL_OPENGL;
+	flags = SDL_WINDOW_OPENGL;
 	gl_state.stencil = true;
 #else
 	vinfo = SDL_GetVideoInfo();
@@ -468,24 +461,33 @@ static qboolean SDLimp_InitGraphics( qboolean fullscreen )
 #endif
 
 	if (fullscreen)
-		flags |= SDL_FULLSCREEN;
+		flags |= SDL_WINDOW_FULLSCREEN;
 
-	SetSDLIcon(); /* currently uses q2icon.xbm data */
+	window = SDL_CreateWindow(APPLICATION,
+								SDL_WINDOWPOS_UNDEFINED,
+								SDL_WINDOWPOS_UNDEFINED,
+								vid.width, vid.height,
+								flags);
 
-	if ((surface = SDL_SetVideoMode(vid.width, vid.height, 0, flags)) == NULL) {
+	if (window == NULL) {
 		Sys_Error("(SDLGL) SDL SetVideoMode failed: %s\n", SDL_GetError());
 		return false;
 	}
 
-	vid.width = surface->w;
-	vid.height = surface->h;
+#ifdef GL_QUAKE
+	glcontext = SDL_GL_CreateContext(window);
+#endif
 
-	SDL_WM_SetCaption(APPLICATION, APPLICATION);
+	SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-			SDL_DEFAULT_REPEAT_INTERVAL);
+	vid.width = windowWidth;
+	vid.height = windowHeight;
 
-	SDL_ShowCursor(0);
+	// SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL); // FIXME: no longer available
+
+	SetSDLIcon(); /* currently uses q2icon.xbm data */
+
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 #ifndef GL_QUAKE
 	vid.rowbytes = surface->pitch;
@@ -513,7 +515,7 @@ void GLimp_BeginFrame( float camera_seperation )
 #ifdef GL_QUAKE
 void GLimp_EndFrame (void)
 {
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(window);
 }
 #else
 void SWimp_EndFrame (void)
@@ -587,9 +589,13 @@ void SWimp_SetPalette( const unsigned char *palette )
 
 void SWimp_Shutdown( void )
 {
-	if (surface)
-		SDL_FreeSurface(surface);
-	surface = NULL;
+	if (window) {
+		SDL_DestroyWindow(window);
+#ifdef GL_QUAKE
+		SDL_GL_DeleteContext(glcontext);
+#endif
+		window = NULL;
+	}
 
 	if (SDL_WasInit(SDL_INIT_EVERYTHING) == SDL_INIT_VIDEO)
 		SDL_Quit();
@@ -690,10 +696,10 @@ void HandleEvents(void)
 
 			if (!_windowed_mouse->value) {
 				/* ungrab the pointer */
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
+				SDL_SetWindowGrab(window, SDL_FALSE);
 			} else {
 				/* grab the pointer */
-				SDL_WM_GrabInput(SDL_GRAB_ON);
+				SDL_SetWindowGrab(window, SDL_TRUE);
 			}
 		}
 		IN_MouseEvent();
@@ -718,6 +724,15 @@ void KBD_Close(void)
 
 char *Sys_GetClipboardData(void)
 {
-	return NULL;
+	char *text = Z_TagMalloc(1024, TAG_CLIPBOARD);
+
+	char *clipboard = SDL_GetClipboardText();
+
+	if (clipboard) {
+		Q_strncpyz(text, clipboard, 1024);
+		SDL_free(clipboard);
+	}
+
+	return text;
 }
 

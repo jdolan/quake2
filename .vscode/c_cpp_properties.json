@@ -3,7 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/src/**"
+				"${workspaceFolder}/src/**",
+				"/usr/include/SDL2"
             ],
             "defines": [
                 "GL_QUAKE",
