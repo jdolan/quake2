@@ -17,7 +17,7 @@ ifneq ($(PLATFORM),linux)
 endif
 
 CC=gcc
-CFLAGS=-funsigned-char -pipe $(shell sdl-config --cflags) -DGL_QUAKE -DUSE_SDL -DUSE_CURL
+CFLAGS=-funsigned-char -pipe $(shell sdl2-config --cflags) -DGL_QUAKE -DUSE_SDL -DUSE_CURL
 
 ifeq ($(PLATFORM),darwin)
 	CFLAGS += -D__APPLE__ -I/opt/local/include
@@ -32,7 +32,7 @@ else
 	LDFLAGS=-lm -ldl
 endif
 
-LDFLAGS += $(shell sdl-config --libs)
+LDFLAGS += $(shell sdl2-config --libs)
 LDFLAGS += $(shell curl-config --libs)
 LDFLAGS += -ljpeg -lpng -lz
 
@@ -57,7 +57,7 @@ src/game/%.o : src/game/%.c
 	@mkdir -p $(shell dirname $@)
 	@echo " [CC] $(shell basename $@)"
 	@$(CC) $(CFLAGS) -fPIC -o $@ -c $<
-	
+
 # Executable compilation target.
 src/%.o : src/%.c
 	@mkdir -p $(shell dirname $@)
@@ -209,7 +209,7 @@ GAME_OBJS = \
 	src/game/p_view.o \
 	src/game/p_weapon.o \
 	src/game/q_shared.o
-	
+
 # The game shared library.
 bin/game.so : $(GAME_OBJS)
 	@echo "[LD] game.so"
