@@ -50,6 +50,7 @@ cvar_t	*cl_async;
 cvar_t	*cl_gun;
 cvar_t	*cl_gunalpha;
 cvar_t	*cl_gun_x, *cl_gun_y, *cl_gun_z;
+cvar_t	*cl_gun_pitch, *cl_gun_yaw, *cl_gun_roll;
 
 cvar_t	*cl_add_particles;
 cvar_t	*cl_add_lights;
@@ -2154,6 +2155,9 @@ void CL_InitLocal (void)
 	cl_gun_x = Cvar_Get("cl_gun_x", "0", 0);
 	cl_gun_y = Cvar_Get("cl_gun_y", "0", 0);
 	cl_gun_z = Cvar_Get("cl_gun_z", "0", 0);
+	cl_gun_pitch = Cvar_Get("cl_gun_pitch", "0", 0);
+	cl_gun_yaw = Cvar_Get("cl_gun_yaw", "0", 0);
+	cl_gun_roll = Cvar_Get("cl_gun_roll", "0", 0);
 	cl_footsteps = Cvar_Get ("cl_footsteps", "1", 0);
 	cl_noskins = Cvar_Get ("cl_noskins", "0", 0);
 //	cl_autoskins = Cvar_Get ("cl_autoskins", "0", 0);

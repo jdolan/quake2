@@ -486,6 +486,11 @@ void Key_Init (void)
 	Cmd_AddCommand ("unbind",Key_Unbind_f);
 	Cmd_AddCommand ("unbindall",Key_Unbindall_f);
 	Cmd_AddCommand ("bindlist",Key_Bindlist_f);
+	
+	// Set default binding for aim mode to right mouse button
+	// Only set if not already bound
+	if (!keys[K_MOUSE2].binding || !keys[K_MOUSE2].binding[0])
+		Key_SetBinding(K_MOUSE2, "+centerweapon");
 }
 
 /*

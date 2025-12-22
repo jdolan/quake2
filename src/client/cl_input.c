@@ -20,10 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl.input.c  -- builds an intended movement command to send to the server
 
 #include "client.h"
+#include "cl_weapon_offsets.h"
 
 static cvar_t *cl_nodelta;
 static cvar_t *cl_maxpackets;
 extern cvar_t *cl_maxfps;
+extern cvar_t *cl_gun_x, *cl_gun_y, *cl_gun_z;
+extern cvar_t *cl_gun_pitch, *cl_gun_yaw, *cl_gun_roll;
+extern cvar_t *info_fov;
 
 
 cvar_t	*cl_upspeed;
@@ -50,6 +54,10 @@ static qboolean	mlooking;
 extern	unsigned	sys_frame_time;
 static unsigned	frame_msec;
 static unsigned	old_sys_frame_time;
+
+// Forward declarations for auto-aim functions
+static void CL_UpdateAutoAim(void);
+static void CL_SmoothAimToward(vec3_t target_angles, float max_adjust, int entity_num, int model_index);
 
 /*
 ===============================================================================
@@ -496,6 +504,9 @@ void CL_UpdateCmd( int msec )
 
 	// update cmd->msec for CL_PredictMove
 	cl.cmd.msec += msec;
+	
+	// Update auto-aim tracking if active
+	CL_UpdateAutoAim();
 }
 
 // CL_FinalizeCmd
@@ -543,6 +554,374 @@ void IN_CenterView (void)
 	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
 }
 
+// Stored default gun positions and angles
+static float default_gun_x = 0;
+static float default_gun_y = 0;
+static float default_gun_z = 0;
+static float default_gun_pitch = 0;
+static float default_gun_yaw = 0;
+static float default_gun_roll = 0;
+static float default_fov = 0;
+static qboolean gun_centered = false;
+static int aim_target_entity = -1; // Currently tracked entity
+
+// Calculate angle difference between two angles (in degrees)
+static float AngleDiff(float a1, float a2)
+{
+	float diff = a1 - a2;
+	while (diff > 180) diff -= 360;
+	while (diff < -180) diff += 360;
+	return diff;
+}
+
+// Update auto-aim tracking each frame
+static void CL_UpdateAutoAim(void)
+{
+	// Auto-aim is now a one-time snap when entering aim mode
+	// No continuous tracking needed
+	return;
+}
+
+// Smoothly adjust view angles toward target angles
+static void CL_SmoothAimToward(vec3_t target_angles, float max_adjust, int entity_num, int model_index)
+{
+	// Normalize target angles to [-180, 180] range to match cl.viewangles
+	float target_pitch = target_angles[PITCH];
+	float target_yaw = target_angles[YAW];
+	const char *model_name = "";
+	
+	if (model_index > 0 && model_index < MAX_MODELS) {
+		model_name = cl.configstrings[CS_MODELS + model_index];
+	}
+	
+	while (target_yaw > 180) target_yaw -= 360;
+	while (target_yaw < -180) target_yaw += 360;
+	while (target_pitch > 180) target_pitch -= 360;
+	while (target_pitch < -180) target_pitch += 360;
+	
+	// Use predicted_angles which includes delta_angles offset
+	float pitch_diff = AngleDiff(target_pitch, cl.predicted_angles[PITCH]);
+	float yaw_diff = AngleDiff(target_yaw, cl.predicted_angles[YAW]);
+	float total_angle = sqrt(pitch_diff * pitch_diff + yaw_diff * yaw_diff);
+	
+	// Deadzone: stop adjusting when already very close to avoid shaking
+	const float deadzone = 0.5f; // degrees
+	if (total_angle < deadzone) {
+		// Already locked on, no adjustment needed
+		return;
+	}
+	
+	Com_Printf("Tracking entity %d (model: %s): target=(%.1f, %.1f) current=(%.1f, %.1f) diff=(%.1f, %.1f) total=%.1f\n",
+			entity_num, model_name,
+			target_pitch, target_yaw,
+			cl.predicted_angles[PITCH], cl.predicted_angles[YAW],
+			pitch_diff, yaw_diff, total_angle);
+	
+	// Clamp adjustments to max_adjust degrees per frame
+	if (pitch_diff > max_adjust) pitch_diff = max_adjust;
+	else if (pitch_diff < -max_adjust) pitch_diff = -max_adjust;
+	
+	if (yaw_diff > max_adjust) yaw_diff = max_adjust;
+	else if (yaw_diff < -max_adjust) yaw_diff = -max_adjust;
+	
+	// Apply smooth adjustment to viewangles (the delta will be applied by the engine)
+	cl.viewangles[PITCH] += pitch_diff;
+	cl.viewangles[YAW] += yaw_diff;
+}
+
+// Find the closest enemy to the crosshair and return the angles to aim at it
+// Returns true if an enemy was found within the auto-aim radius
+static qboolean CL_FindAutoAimTarget(vec3_t out_angles)
+{
+	int i;
+	float best_dist = 999999.0f;
+	float auto_aim_radius = 45.0f; // degrees from crosshair center
+	int best_entity = -1;
+	vec3_t target_angles;
+	vec3_t dir;
+	float dist, angle_diff;
+	
+	if (!cl.frame.valid)
+		return false;
+	
+	Com_Printf("=== Auto-aim scan: %d entities ===\n", cl.frame.num_entities);
+	Com_Printf("Player view angles: pitch=%.1f yaw=%.1f\n", cl.viewangles[PITCH], cl.viewangles[YAW]);
+	Com_Printf("Player position: x=%.1f y=%.1f z=%.1f\n", cl.refdef.vieworg[0], cl.refdef.vieworg[1], cl.refdef.vieworg[2]);
+	
+	// Iterate through all entities in the current frame
+	for (i = 0; i < cl.frame.num_entities; i++)
+	{
+		entity_state_t *ent = &cl_parse_entities[(cl.frame.parse_entities + i) & PARSE_ENTITIES_MASK];
+		float distance;
+		const char *model_name;
+		
+		// Skip the player entity
+		if (ent->number == cl.playernum + 1) {
+			Com_Printf("  Entity %d: SKIP (player)\n", ent->number);
+			continue;
+		}
+		
+		// Skip non-solid entities (effects, projectiles, etc)
+		if (!ent->solid) {
+			Com_Printf("  Entity %d: SKIP (non-solid)\n", ent->number);
+			continue;
+		}
+		
+		// Skip if no model (invisible entities)
+		if (!ent->modelindex) {
+			Com_Printf("  Entity %d: SKIP (no model)\n", ent->number);
+			continue;
+		}
+		
+		// Skip brush models (map geometry like doors, platforms, etc)
+		// These have model names starting with '*'
+		model_name = cl.configstrings[CS_MODELS + ent->modelindex];
+		if (model_name && model_name[0] == '*') {
+			Com_Printf("  Entity %d: SKIP (brush model: %s)\n", ent->number, model_name);
+			continue;
+		}
+		
+		// Only target monsters - skip items, barrels, gibs, etc.
+		// Monster models are in "models/monsters/" directory
+		if (!model_name || !strstr(model_name, "models/monsters/")) {
+			Com_Printf("  Entity %d: SKIP (not a monster: %s)\n", ent->number, model_name ? model_name : "(null)");
+			continue;
+		}
+		
+		// Skip entities that are too far (beyond reasonable combat range)
+		distance = Distance(ent->origin, cl.refdef.vieworg);
+		if (distance > 1000.0f) {
+			Com_Printf("  Entity %d (model: %s): SKIP (too far: %.1f)\n", ent->number, model_name, distance);
+			continue;
+		}
+		
+		// Calculate direction to entity
+		// Add vertical offset to aim at center of entity (not feet)
+		vec3_t target_pos;
+		VectorCopy(ent->origin, target_pos);
+		target_pos[2] += 24; // Aim at roughly chest/head height
+		
+		VectorSubtract(target_pos, cl.refdef.vieworg, dir);
+		
+		// Calculate angles to entity
+		VecToAngles(dir, target_angles);
+		
+		Com_Printf("  Entity %d position: x=%.1f y=%.1f z=%.1f\n", ent->number, target_pos[0], target_pos[1], target_pos[2]);
+		Com_Printf("  Entity %d: VecToAngles result: pitch=%.1f yaw=%.1f\n", ent->number, target_angles[PITCH], target_angles[YAW]);
+		
+		// Invert pitch for Quake's coordinate system
+		target_angles[PITCH] = -target_angles[PITCH];
+		
+		Com_Printf("  Entity %d: After pitch inversion: pitch=%.1f yaw=%.1f\n", ent->number, target_angles[PITCH], target_angles[YAW]);
+		Com_Printf("  Entity %d: Current view angles (raw): pitch=%.1f yaw=%.1f\n", ent->number, cl.viewangles[PITCH], cl.viewangles[YAW]);
+		Com_Printf("  Entity %d: Current view angles (predicted): pitch=%.1f yaw=%.1f\n", ent->number, cl.predicted_angles[PITCH], cl.predicted_angles[YAW]);
+		
+		// Calculate angular distance from current crosshair position
+		// Use predicted_angles which includes delta_angles offset
+		float yaw_diff = fabs(AngleDiff(target_angles[YAW], cl.predicted_angles[YAW]));
+		float pitch_diff = fabs(AngleDiff(target_angles[PITCH], cl.predicted_angles[PITCH]));
+		angle_diff = sqrt(yaw_diff * yaw_diff + pitch_diff * pitch_diff);
+		
+		Com_Printf("  Entity %d (model: %s): dist=%.1f units, angle_off=%.1f deg (yaw_diff=%.1f pitch_diff=%.1f)\n", 
+				ent->number, model_name, distance, angle_diff, yaw_diff, pitch_diff);
+		
+		// Check if within auto-aim radius and closer than previous best
+		if (angle_diff < auto_aim_radius && angle_diff < best_dist)
+		{
+			Com_Printf("    -> NEW BEST TARGET\n");
+			best_dist = angle_diff;
+			best_entity = ent->number;
+			VectorCopy(target_angles, out_angles);
+		} else if (angle_diff >= auto_aim_radius) {
+			Com_Printf("    -> outside aim radius (%.1f >= %.1f)\n", angle_diff, auto_aim_radius);
+		}
+	}
+	
+	Com_Printf("\n=== AUTO-AIM SUMMARY ===\n");
+	
+	if (best_entity != -1)
+	{
+		const char *target_model = "";
+		entity_state_t *target_ent = NULL;
+		float target_distance = 0;
+		
+		// Find the target entity to get its info
+		for (i = 0; i < cl.frame.num_entities; i++)
+		{
+			entity_state_t *ent = &cl_parse_entities[(cl.frame.parse_entities + i) & PARSE_ENTITIES_MASK];
+			if (ent->number == best_entity)
+			{
+				target_ent = ent;
+				if (ent->modelindex > 0 && ent->modelindex < MAX_MODELS)
+					target_model = cl.configstrings[CS_MODELS + ent->modelindex];
+				target_distance = Distance(ent->origin, cl.refdef.vieworg);
+				break;
+			}
+		}
+		
+		aim_target_entity = best_entity;
+		
+		Com_Printf("✓ AUTO-AIM ACTIVE\n");
+		Com_Printf("  Target: Entity %d\n", best_entity);
+		Com_Printf("  Model: %s\n", target_model);
+		Com_Printf("  Distance: %.1f units\n", target_distance);
+		Com_Printf("  Angular offset: %.1f degrees\n", best_dist);
+		Com_Printf("  Within FOV: YES (< %.1f degrees)\n", auto_aim_radius);
+		Com_Printf("  Status: Auto-aim will track this target\n");
+		
+		return true;
+	}
+	else
+	{
+		Com_Printf("✗ AUTO-AIM INACTIVE\n");
+		Com_Printf("  Reason: No valid targets found within %.1f degree radius\n", auto_aim_radius);
+		Com_Printf("  Common causes:\n");
+		Com_Printf("    - No enemies within FOV cone\n");
+		Com_Printf("    - All nearby entities are brush models (map geometry)\n");
+		Com_Printf("    - Enemies too far away (> 1000 units)\n");
+		Com_Printf("    - Enemies are non-solid or have no model\n");
+	}
+	
+	aim_target_entity = -1;
+	return false;
+}
+
+// Get weapon index from current weapon model path
+static int CL_GetCurrentWeaponIndex(void)
+{
+	int gunindex;
+	const char *model_path;
+	
+	if (!cl.frame.valid)
+		return 0;
+	
+	// Get the current gun model index from player state
+	gunindex = cl.frame.playerstate.gunindex;
+	if (gunindex <= 0 || gunindex >= MAX_MODELS)
+		return 0;
+	
+	// Get the model path from config strings
+	model_path = cl.configstrings[CS_MODELS + gunindex];
+	if (!model_path || !model_path[0])
+		return 0;
+	
+	// Match model path to weapon index
+	// The view models are stored like "models/weapons/v_blast/tris.md2"
+	if (strstr(model_path, "v_blast"))
+		return WEAP_BLASTER;
+	else if (strstr(model_path, "v_shotg2"))
+		return WEAP_SUPERSHOTGUN;
+	else if (strstr(model_path, "v_shotg"))
+		return WEAP_SHOTGUN;
+	else if (strstr(model_path, "v_machn"))
+		return WEAP_MACHINEGUN;
+	else if (strstr(model_path, "v_chain"))
+		return WEAP_CHAINGUN;
+	else if (strstr(model_path, "v_handgr"))
+		return WEAP_GRENADES;
+	else if (strstr(model_path, "v_launch"))
+		return WEAP_GRENADELAUNCHER;
+	else if (strstr(model_path, "v_rocket"))
+		return WEAP_ROCKETLAUNCHER;
+	else if (strstr(model_path, "v_hyperb"))
+		return WEAP_HYPERBLASTER;
+	else if (strstr(model_path, "v_rail"))
+		return WEAP_RAILGUN;
+	else if (strstr(model_path, "v_bfg"))
+		return WEAP_BFG;
+	
+	return 0;
+}
+
+void IN_CenterWeaponDown (void)
+{
+	int weapon_index;
+	float aim_x, aim_y;
+	float aim_fov;
+	vec3_t auto_aim_angles;
+	
+	// Store current positions and angles
+	default_gun_x = cl_gun_x->value;
+	default_gun_y = cl_gun_y->value;
+	default_gun_z = cl_gun_z->value;
+	default_gun_pitch = cl_gun_pitch->value;
+	default_gun_yaw = cl_gun_yaw->value;
+	default_gun_roll = cl_gun_roll->value;
+	default_fov = info_fov->value;
+	
+	// Find auto-aim target and snap to it (one-time adjustment)
+	if (CL_FindAutoAimTarget(auto_aim_angles))
+	{
+		// Snap viewangles directly to target (instant lock)
+		// Normalize target angles to match viewangles range
+		float target_pitch = auto_aim_angles[PITCH];
+		float target_yaw = auto_aim_angles[YAW];
+		
+		while (target_pitch > 180) target_pitch -= 360;
+		while (target_pitch < -180) target_pitch += 360;
+		while (target_yaw > 180) target_yaw -= 360;
+		while (target_yaw < -180) target_yaw += 360;
+		
+		// Calculate the adjustment needed in viewangles space
+		// predicted_angles = viewangles + delta_angles
+		// So: viewangles = predicted_angles - delta_angles
+		float delta_pitch = SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
+		float delta_yaw = SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[YAW]);
+		
+		// Set viewangles to achieve the target predicted_angles
+		cl.viewangles[PITCH] = target_pitch - delta_pitch;
+		cl.viewangles[YAW] = target_yaw - delta_yaw;
+		
+		Com_Printf("Auto-aim: Snapped to target entity %d\n", aim_target_entity);
+	}
+	
+	// Clear the target so we don't track continuously
+	aim_target_entity = -1;
+	
+	// Get weapon-specific aim offsets
+	weapon_index = CL_GetCurrentWeaponIndex();
+	if (weapon_index > 0 && weapon_index < MAX_WEAPON_OFFSETS)
+	{
+		aim_x = weapon_aim_offsets[weapon_index].x;
+		aim_y = weapon_aim_offsets[weapon_index].y;
+	}
+	else
+	{
+		// Default offsets if weapon not found
+		aim_x = -7.0f;
+		aim_y = 0.0f;
+	}
+	
+	// Calculate aim FOV (reduce by 15% for zoom effect)
+	aim_fov = default_fov * 0.85f;
+	
+	// Center and straighten the weapon for aiming
+	Cvar_SetValue("cl_gun_x", aim_x);
+	Cvar_SetValue("cl_gun_y", aim_y);
+	Cvar_SetValue("cl_gun_z", 0);
+	Cvar_SetValue("cl_gun_pitch", 0);
+	Cvar_SetValue("cl_gun_yaw", 0);
+	Cvar_SetValue("cl_gun_roll", 0);
+	Cvar_SetValue("fov", aim_fov);
+	gun_centered = true;
+}
+
+void IN_CenterWeaponUp (void)
+{
+	// Restore original positions and angles
+	if (gun_centered) {
+		Cvar_SetValue("cl_gun_x", default_gun_x);
+		Cvar_SetValue("cl_gun_y", default_gun_y);
+		Cvar_SetValue("cl_gun_z", default_gun_z);
+		Cvar_SetValue("cl_gun_pitch", default_gun_pitch);
+		Cvar_SetValue("cl_gun_yaw", default_gun_yaw);
+		Cvar_SetValue("cl_gun_roll", default_gun_roll);
+		Cvar_SetValue("fov", default_fov);
+		gun_centered = false;
+		aim_target_entity = -1; // Stop tracking
+	}
+}
+
 /*
 ============
 CL_InitInput
@@ -551,6 +930,8 @@ CL_InitInput
 void CL_InitInput (void)
 {
 	Cmd_AddCommand ("centerview",IN_CenterView);
+	Cmd_AddCommand ("+centerweapon",IN_CenterWeaponDown);
+	Cmd_AddCommand ("-centerweapon",IN_CenterWeaponUp);
 
 	Cmd_AddCommand ("+moveup",IN_UpDown);
 	Cmd_AddCommand ("-moveup",IN_UpUp);
@@ -632,7 +1013,12 @@ void CL_SendCmd (void)
 
 	SZ_Init (&buf, data, sizeof(data));
 
-	if (cmd->buttons && cl.cinematictime > 0 && !cl.attractloop 
+	if (cl.cinematictime > 0) {
+		// DEV MOD: Do not play cinematics
+		SCR_FinishCinematic ();
+	}
+
+	if (cmd->buttons && cl.cinematictime > 0 && !cl.attractloop
 		&& cls.realtime - cl.cinematictime > 1000)
 	{	// skip the rest of the cinematic
 		SCR_FinishCinematic ();

@@ -46,6 +46,7 @@ char *bindnames[][2] =
 {"+klook", 			"keyboard look"},
 {"+moveup",			"up / jump"},
 {"+movedown",		"down / crouch"},
+{"+centerweapon",	"aim mode"},
 
 {"inven",			"inventory"},
 {"invuse",			"use item"},
@@ -78,6 +79,7 @@ static menuaction_s		s_keys_mouse_look_action;
 static menuaction_s		s_keys_keyboard_look_action;
 static menuaction_s		s_keys_move_up_action;
 static menuaction_s		s_keys_move_down_action;
+static menuaction_s		s_keys_aim_mode_action;
 static menuaction_s		s_keys_inventory_action;
 static menuaction_s		s_keys_inv_use_action;
 static menuaction_s		s_keys_inv_drop_action;
@@ -371,6 +373,14 @@ static void Keys_MenuInit( void )
 	s_keys_move_down_action.generic.localdata[0] = ++i;
 	s_keys_move_down_action.generic.name	= bindnames[s_keys_move_down_action.generic.localdata[0]][1];
 
+	s_keys_aim_mode_action.generic.type	= MTYPE_ACTION;
+	s_keys_aim_mode_action.generic.flags  = QMF_GRAYED;
+	s_keys_aim_mode_action.generic.x		= 0;
+	s_keys_aim_mode_action.generic.y		= y += 9;
+	s_keys_aim_mode_action.generic.ownerdraw = DrawKeyBindingFunc;
+	s_keys_aim_mode_action.generic.localdata[0] = ++i;
+	s_keys_aim_mode_action.generic.name	= bindnames[s_keys_aim_mode_action.generic.localdata[0]][1];
+
 	s_keys_inventory_action.generic.type	= MTYPE_ACTION;
 	s_keys_inventory_action.generic.flags  = QMF_GRAYED;
 	s_keys_inventory_action.generic.x		= 0;
@@ -439,6 +449,7 @@ static void Keys_MenuInit( void )
 	Menu_AddItem( &s_keys_menu, ( void * ) &s_keys_keyboard_look_action );
 	Menu_AddItem( &s_keys_menu, ( void * ) &s_keys_move_up_action );
 	Menu_AddItem( &s_keys_menu, ( void * ) &s_keys_move_down_action );
+	Menu_AddItem( &s_keys_menu, ( void * ) &s_keys_aim_mode_action );
 
 	Menu_AddItem( &s_keys_menu, ( void * ) &s_keys_inventory_action );
 	Menu_AddItem( &s_keys_menu, ( void * ) &s_keys_inv_use_action );

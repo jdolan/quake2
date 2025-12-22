@@ -1126,6 +1126,7 @@ CL_AddViewWeapon
 extern cvar_t *cl_gunalpha;
 extern cvar_t *info_hand;
 extern cvar_t *cl_gun_x, *cl_gun_y, *cl_gun_z;
+extern cvar_t *cl_gun_pitch, *cl_gun_yaw, *cl_gun_roll;
 
 static void CL_AddViewWeapon (const player_state_t *ps, const player_state_t *ops)
 {
@@ -1162,10 +1163,31 @@ static void CL_AddViewWeapon (const player_state_t *ps, const player_state_t *op
 		gun.origin[i] = cl.refdef.vieworg[i] + ops->gunoffset[i] + cl.lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
 		gun.angles[i] = cl.refdef.viewangles[i] + LerpAngle (ops->gunangles[i], ps->gunangles[i], cl.lerpfrac);
 	}
+	
+	// Apply custom angle adjustments
+	gun.angles[PITCH] += cl_gun_pitch->value;
+	gun.angles[YAW] += cl_gun_yaw->value;
+	gun.angles[ROLL] += cl_gun_roll->value;
 
-	VectorMA( gun.origin, cl_gun_y->value, cl.v_forward, gun.origin );
-	VectorMA( gun.origin, cl_gun_x->value, cl.v_right, gun.origin );
-	VectorMA( gun.origin, (cl_gun_z->value+fovOffset), cl.v_up, gun.origin );
+	// Apply hand-specific adjustments to gun position
+	float gun_x_offset = cl_gun_x->value;
+	float gun_y_offset = cl_gun_y->value;
+	float gun_z_offset = cl_gun_z->value;
+	
+	if (info_hand->integer == 1) {
+		// LEFT_HANDED - mirror the weapon
+		// Note: The actual mirroring is done below with VectorInverse
+	}
+	else if (info_hand->integer == 2) {
+		// CENTER_HANDED - center the weapon horizontally
+		// Zero out any horizontal offset to center it
+		gun_x_offset = 0;
+	}
+	// else RIGHT_HANDED (0) - use default offsets
+	
+	VectorMA( gun.origin, gun_y_offset, cl.v_forward, gun.origin );
+	VectorMA( gun.origin, gun_x_offset, cl.v_right, gun.origin );
+	VectorMA( gun.origin, (gun_z_offset+fovOffset), cl.v_up, gun.origin );
 
 	gun.frame = ps->gunframe;
 	if (gun.frame == 0)
