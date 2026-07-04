@@ -67,7 +67,7 @@ def prompt(message, default=''):
     """Prompts the user for input, returning their response."""
     while True:
         sys.stdout.write("%s [%s] " % (message, default))
-        response = raw_input().lower()
+        response = input().lower()
         if response == '':
             if default == '':
                 continue
@@ -102,4 +102,4 @@ if __name__ == '__main__':
     if prompt(messages.textures, 'y') == 'y':
         rsync(config.textures)
         
-    print messages.end
+    print(messages.end)
