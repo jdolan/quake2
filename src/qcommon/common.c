@@ -1193,7 +1193,7 @@ Qcommon_Frame
 =================
 */
 #ifdef GL_QUAKE
-cvar_t *cl_avidemo;
+extern cvar_t *cl_avidemo;
 #endif
 
 void Qcommon_Frame (int msec)
